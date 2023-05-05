@@ -13,6 +13,7 @@ IMAG_TOL = 1.0e-4
 def R2minus_R(R):
     return tuple(map(lambda x: -x, R))
 
+
 class TBModel:
     def __init__(
             self,
@@ -44,35 +45,34 @@ class TBModel:
         self.isspinful = isspinful
         self.is_canonical_ordered = is_canonical_ordered
 
-
-# class TBModel:
-#     def __init__(self,
-#                  norbits: int,
-#                  lat: np.ndarray,
-#                  rlat: np.ndarray,
-#                  hoppings: Dict[np.ndarray, np.ndarray],
-#                  overlaps: Dict[np.ndarray, np.ndarray],
-#                  positions: Dict[np.ndarray, List[np.ndarray]],
-#                  isorthogonal: bool,
-#                  nsites: Optional[int] = None,
-#                  site_norbits: Optional[np.ndarray] = None,
-#                  site_positions: Optional[np.ndarray] = None,
-#                  orbital_types: Optional[List[List[int]]] = None,
-#                  isspinful: Optional[bool] = None,
-#                  is_canonical_ordered: Optional[bool] = None):
-#         self.norbits = norbits
-#         self.lat = lat
-#         self.rlat = rlat
-#         self.hoppings = hoppings
-#         self.overlaps = overlaps
-#         self.positions = positions
-#         self.isorthogonal = isorthogonal
-#         self.nsites = nsites
-#         self.site_norbits = site_norbits
-#         self.site_positions = site_positions
-#         self.orbital_types = orbital_types
-#         self.isspinful = isspinful
-#         self.is_canonical_ordered = is_canonical_ordered
+    # class TBModel:
+    #     def __init__(self,
+    #                  norbits: int,
+    #                  lat: np.ndarray,
+    #                  rlat: np.ndarray,
+    #                  hoppings: Dict[np.ndarray, np.ndarray],
+    #                  overlaps: Dict[np.ndarray, np.ndarray],
+    #                  positions: Dict[np.ndarray, List[np.ndarray]],
+    #                  isorthogonal: bool,
+    #                  nsites: Optional[int] = None,
+    #                  site_norbits: Optional[np.ndarray] = None,
+    #                  site_positions: Optional[np.ndarray] = None,
+    #                  orbital_types: Optional[List[List[int]]] = None,
+    #                  isspinful: Optional[bool] = None,
+    #                  is_canonical_ordered: Optional[bool] = None):
+    #         self.norbits = norbits
+    #         self.lat = lat
+    #         self.rlat = rlat
+    #         self.hoppings = hoppings
+    #         self.overlaps = overlaps
+    #         self.positions = positions
+    #         self.isorthogonal = isorthogonal
+    #         self.nsites = nsites
+    #         self.site_norbits = site_norbits
+    #         self.site_positions = site_positions
+    #         self.orbital_types = orbital_types
+    #         self.isspinful = isspinful
+    #         self.is_canonical_ordered = is_canonical_ordered
 
     def has_full_information(self):
         for field in ["nsites", "site_norbits", "site_positions", "orbital_types",
@@ -127,26 +127,26 @@ class TBModel:
             # print("lat*tmp", self.lat[alpha - 1] * tmp)
             # print("np.conj(pos)-self.lat[alpha-1]*tmp", np.conj(pos) - self.lat[alpha - 1] * tmp)
             # print(type(np.conj(pos) - self.lat[alpha - 1] * tmp))
-            self.positions[R2minus_R(R)][alpha - 1][m, n] = np.conj(pos) - (self.lat@R)[alpha - 1] * tmp
+            self.positions[R2minus_R(R)][alpha - 1][m, n] = np.conj(pos) - (self.lat @ R)[alpha - 1] * tmp
 
     def set_hopping(self, R, n, m, hopping):
         if not (0 <= n <= self.norbits) or not (0 <= m <= self.norbits):
             raise ValueError("n or m not in range 1-norbits.")
         if len(R) != 3:
             raise ValueError("R should be a 3-element vector")
-        # print(R, R0, type(R), type(R0))
-        # print(R.all() == R0.all())
+
         if R == R0 and n == m and abs(hopping.imag) > IMAG_TOL:
             raise ValueError("On site energy should be real.")
 
         if R not in self.hoppings:
-            print("R not in self.hoppings",R)
-            self.hoppings[R] = np.zeros((self.norbits, self.norbits))
-            self.hoppings[R2minus_R(R)] = np.zeros((self.norbits, self.norbits))
+            # print("R not in self.hoppings", R)
+            self.hoppings[R] = np.zeros((self.norbits, self.norbits), dtype=type(hopping))
+            self.hoppings[R2minus_R(R)] = np.zeros((self.norbits, self.norbits), dtype=type(hopping))
 
         if R == R0 and n == m:
             self.hoppings[R][n, m] = hopping.real
         else:
+            # print("R ")
             self.hoppings[R][n, m] = hopping
             self.hoppings[R2minus_R(R)][m, n] = np.conj(hopping)
 
@@ -173,12 +173,15 @@ class TBModel:
             self.overlaps[R][n, m] = overlap
             self.overlaps[R2minus_R(R)][m, n] = np.conj(overlap)
 
-        if R == R0 and n == m and has_full_information(self):
+        if R == R0 and n == m and self.has_full_information():
             i = self._to_site_index(self, n)[0]
             self.set_position(self, R0, n, n, self.site_positions[:, i] * self.overlaps[R0][n, n])
 
+    def add_hopping(self,):
 
-def create_TBModel(norbits, lat, isorthogonal=True):
+
+def create_TBModel(norbits: int, lat: np.ndarray, isorthogonal=True):
+    # print(lat.shape)
     if lat.shape != (3, 3):
         raise ValueError("Size of lat is not correct.")
     rlat = 2 * np.pi * np.linalg.inv(lat).T
@@ -186,11 +189,43 @@ def create_TBModel(norbits, lat, isorthogonal=True):
     overlaps = {' '.join(list(map(lambda x: str(x), list(R0)))): np.eye(norbits, dtype=float)}
     return TBModel(norbits, lat, rlat, {}, {}, {}, isorthogonal, None, None, None, None, None, overlaps)
 
+
+def create_info_missing_tb_model(lat: np.ndarray, orbital_positions, isorthogonal=True):
+    if lat.shape != (3, 3):
+        raise ValueError("Size of lat is not correct.")
+    if orbital_positions.shape[0] != 3:
+        raise ValueError("orbital_positions should have three rows.")
+
+    norbits = orbital_positions.shape[1]
+    rlat = 2 * np.pi * np.linalg.inv(lat).T
+
+    # self.nsites = nsites
+    # self.site_norbits = site_norbits
+    # self.site_positions = site_positions
+    # self.orbital_types = orbital_types
+    # self.isspinful = isspinful
+    # self.is_canonical_ordered = is_canonical_ordered
+
+    tm = TBModel(norbits, lat, rlat, hoppings=dict(), positions=dict(), overlaps=dict()
+                 , isorthogonal=isorthogonal, nsites=None, site_norbits=None, site_positions=None, orbital_types=None,
+                 isspinful=None, is_canonical_ordered={})
+
+    tm.overlaps[R0] = np.eye(norbits)
+
+    for n in range(norbits):
+        for alpha in range(1, 4):
+            tm.set_position(R0, n, n, alpha, orbital_positions[alpha-1, n])
+    return tm
+
+# def set_position(tm, R, n, m, α, val):
+#     if R not in tm["positions"]:
+#         tm["positions"][R] = np.zeros((tm["norbits"], tm["norbits"], 3))
+#     tm["positions"][R][n, m, α] = val
+
+
+
 ###
 
 
 # def R2str(R):
 #     return ' '.join(list(map(lambda x: str(x), list(R))))
-
-
-###

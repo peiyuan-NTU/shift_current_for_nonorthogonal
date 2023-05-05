@@ -50,9 +50,23 @@ def read_openmx39(file_name):
         tv, rtv, Gxyz = [read_3d_vecs(np.float64, f, _) for _ in [3, 3, atomnum]]
 
         Hk = read_matrix_in_mixed_matrix(np.float64, f, SpinP_switch + 1, atomnum, FNAN, natn, Total_NumOrbs)
+        Hk = list(
+            map(lambda strip_1: list(
+                map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
+                Hk))
+
+
         iHk = read_matrix_in_mixed_matrix(np.float64, f, 3, atomnum, FNAN, natn,
                                           Total_NumOrbs) if SpinP_switch == 3 else None
+        if iHk is not None:
+            iHk = list(
+                map(lambda strip_1: list(
+                    map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
+                    iHk))
         OLP = read_matrix_in_mixed_matrix(np.float64, f, 1, atomnum, FNAN, natn, Total_NumOrbs)[0]
+        OLP = list(map(lambda strip_1: list(map(lambda nd_array: nd_array.T, strip_1)), OLP))
+
+
 
         OLP_r = []
         for i in range(3):
@@ -61,9 +75,16 @@ def read_openmx39(file_name):
                 tmp = read_matrix_in_mixed_matrix(np.float64, f, 1, atomnum, FNAN, natn, Total_NumOrbs)[0]
                 if order == 0:
                     OLP_r.append(tmp)
+        OLP_r = list(
+                map(lambda strip_1: list(
+                    map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
+                    OLP_r))
         OLP_p = read_matrix_in_mixed_matrix(np.float64, f, 3, atomnum, FNAN, natn, Total_NumOrbs)
+        # OLP_p = list(map(lambda strip_1: list(map(lambda nd_array: nd_array.T, strip_1)), OLP_p))
         DM = read_matrix_in_mixed_matrix(np.float64, f, SpinP_switch + 1, atomnum, FNAN, natn, Total_NumOrbs)
+        # DM = list(map(lambda strip_1: list(map(lambda nd_array: nd_array.T, strip_1)), DM))
         iDM = read_matrix_in_mixed_matrix(np.float64, f, 2, atomnum, FNAN, natn, Total_NumOrbs)
+        # iDM = list(map(lambda strip_1: list(map(lambda nd_array: nd_array.T, strip_1)), iDM))
         solver = multiread(np.int32, f, 1)[0]
         chem_p, E_temp = multiread(np.float64, f, 2)
         dipole_moment_core, dipole_moment_background = [multiread(np.float64, f, 3) for _ in range(2)]

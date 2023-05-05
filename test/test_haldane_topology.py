@@ -1,5 +1,6 @@
 from tbm import create_info_missing_tb_model
 import numpy as np
+from
 
 
 # def getHaldane():
@@ -13,20 +14,21 @@ t1 = -1.0
 t2 = 0.15j
 t2c = np.conj(t2)
 
-haldane.add_hopping([0, 0, 0], (1, 1), (1, 1), -delta)
-haldane.add_hopping([0, 0, 0], (2, 1), (2, 1), delta)
+haldane.add_hopping(tuple([0, 0, 0]), (1, 1), (1, 1), -delta)
+haldane.add_hopping(tuple([0, 0, 0]), (2, 1), (2, 1), delta)
 
-haldane.add_hopping([0, 0, 0], (1, 1), (2, 1), t1)
-haldane.add_hopping([1, 0, 0], (2, 1), (1, 1), t1)
-haldane.add_hopping([0, 1, 0], (2, 1), (1, 1), t1)
+haldane.add_hopping(tuple([0, 0, 0]), (1, 1), (2, 1), t1)
+haldane.add_hopping(tuple([1, 0, 0]), (2, 1), (1, 1), t1)
+haldane.add_hopping(tuple([0, 1, 0]), (2, 1), (1, 1), t1)
 
-haldane.add_hopping([1, 0, 0], (1, 1), (1, 1), t2)
-haldane.add_hopping([1, -1, 0], (2, 1), (2, 1), t2)
-haldane.add_hopping([0, 1, 0], (2, 1), (2, 1), t2)
-haldane.add_hopping([1, 0, 0], (2, 1), (2, 1), t2c)
-haldane.add_hopping([1, -1, 0], (1, 1), (1, 1), t2c)
-haldane.add_hopping([0, 1, 0], (1, 1), (1, 1), t2c)
+haldane.add_hopping(tuple([1, 0, 0]), (1, 1), (1, 1), t2)
+haldane.add_hopping(tuple([1, -1, 0]), (2, 1), (2, 1), t2)
+haldane.add_hopping(tuple([0, 1, 0]), (2, 1), (2, 1), t2)
+haldane.add_hopping(tuple([1, 0, 0]), (2, 1), (2, 1), t2c)
+haldane.add_hopping(tuple([1, -1, 0]), (1, 1), (1, 1), t2c)
+haldane.add_hopping(tuple([0, 1, 0]), (1, 1), (1, 1), t2c)
 
     # return haldane
 
 # getHaldane()
+

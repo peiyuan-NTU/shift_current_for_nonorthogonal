@@ -67,6 +67,25 @@ def Berry_connection(tm, k, alpha):
     return berry_connection
 
 
+# def get_wilson_spectrum(tm, k, alpha):
+#     berry_connection = Berry_connection(tm, k, alpha)
+#     Es = get_eigenvalues_for_tbm(tm, k)["values"]
+#     return np.angle(np.linalg.det(berry_connection) * np.exp(1j * Es))
+
+
+
+from hoptb.utilities import construct_line_kpts
+
+def get_wilson_spectrum(tm, getU, kpaths, ndiv):
+    kpts = construct_line_kpts(kpaths, ndiv)
+    Ustart = getU(kpts[:, 0])
+    W = Ustart.conj().T @ getS(tm, kpts[:, -1]) @ parallel_transport(tm, getU, Ustart, kpaths, ndiv)
+    tmp = np.linalg.eigvals(W)
+    err = np.max(np.abs(tmp) - 1.0)
+    if err > 0.01:
+        print(f"W is not unitary! Error: {err}")
+    return np.sort(np.imag(np.log(tmp)))
+
 
 
 

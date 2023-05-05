@@ -95,7 +95,7 @@ class TBModel:
             if n <= ss:
                 i = cnt
                 break
-        return (i + 1, n - sum(l[0:i]) + s * l[i])
+        return i + 1, n - sum(l[0:i]) + s * l[i]
 
     def set_position(self, R, n, m, alpha, pos, position_tolerance=1.0e-4):
         if not (0 <= n <= self.norbits and 0 <= m <= self.norbits):
@@ -177,7 +177,66 @@ class TBModel:
             i = self._to_site_index(self, n)[0]
             self.set_position(self, R0, n, n, self.site_positions[:, i] * self.overlaps[R0][n, n])
 
-    def add_hopping(self,):
+    def _to_orbital_index(self, i_n_tuple):
+        i, n = i_n_tuple
+        if self.isspinful:
+            tmp1 = sum(self.site_norbits[:i - 1]) // 2
+            tmp2 = self.site_norbits[i] // 2
+            tmp3 = self.norbits // 2
+
+            if n > tmp2:
+                return tmp3 + tmp1 + n - tmp2
+            else:
+                return tmp1 + n
+        else:
+            return sum(self.site_norbits[:i - 1]) + n
+
+    import numpy as np
+
+    def add_hopping2(self, R, n, m, hopping):
+        print("11111111111111111111111111111111111111111")
+
+        norbits = self.norbits
+        if n not in range(1, norbits + 1) or m not in range(1, norbits + 1):
+            raise ValueError("n or m not in range 1-norbits.")
+
+        if len(R) != 3:
+            raise ValueError("R should be a 3-element vector.")
+
+        R0 = (0, 0, 0)
+        if R == R0 and n == m and np.imag(hopping) > 1e-10:
+            raise ValueError("On site energy should be real.")
+
+        if R not in self.hoppings:
+            self.hoppings[R] = np.zeros((norbits, norbits), dtype=complex)
+            self.hoppings[tuple(-np.array(R))] = np.zeros((norbits, norbits), dtype=complex)
+
+        if R == R0 and n == m:
+            self.hoppings[R][n - 1, m - 1] += np.real(hopping)
+        else:
+            self.hoppings[R][n - 1, m - 1] += hopping
+            self.hoppings[tuple(-np.array(R))][m - 1, n - 1] += np.conj(hopping)
+
+    def add_hopping(self, R, i_p, j_q, hopping):
+        print("444444444444444444444444444444444444444444444444444444444444444444")
+
+        if not self.has_full_information():
+            raise ValueError("No site information is provided in the model.")
+
+        i, p = i_p
+        j, q = j_q
+
+        if i not in range(1, self.nsites + 1) or j not in range(1, self.nsites + 1):
+            raise ValueError("i or j not in range 1-nsites.")
+
+        i,j=i-1,j-1
+        if p not in range(1, self.site_norbits[i] + 1) or q not in range(1, self.site_norbits[j] + 1):
+            raise ValueError("n or m not in range 1-site_norbits.")
+
+        if len(R) != 3:
+            raise ValueError("R should be a 3-element vector.")
+
+        self.add_hopping2(R, self._to_orbital_index((i, p)), self._to_orbital_index((j, q)), hopping)
 
 
 def create_TBModel(norbits: int, lat: np.ndarray, isorthogonal=True):
@@ -190,38 +249,46 @@ def create_TBModel(norbits: int, lat: np.ndarray, isorthogonal=True):
     return TBModel(norbits, lat, rlat, {}, {}, {}, isorthogonal, None, None, None, None, None, overlaps)
 
 
-def create_info_missing_tb_model(lat: np.ndarray, orbital_positions, isorthogonal=True):
+def create_info_missing_tb_model(lat: np.ndarray, site_positions, orbital_types, isspinful=False, isorthogonal=True,
+                                 is_canonical_ordered=False):
     if lat.shape != (3, 3):
         raise ValueError("Size of lat is not correct.")
-    if orbital_positions.shape[0] != 3:
-        raise ValueError("orbital_positions should have three rows.")
 
-    norbits = orbital_positions.shape[1]
     rlat = 2 * np.pi * np.linalg.inv(lat).T
+    nsites = site_positions.shape[1]
+    nspins = 1 + isspinful
+    site_norbits = np.array([sum(2 * np.array(orbital_types[i]) + 1) for i in range(nsites)]) * nspins
+    norbits = sum(site_norbits)
 
-    # self.nsites = nsites
-    # self.site_norbits = site_norbits
-    # self.site_positions = site_positions
-    # self.orbital_types = orbital_types
-    # self.isspinful = isspinful
-    # self.is_canonical_ordered = is_canonical_ordered
-
-    tm = TBModel(norbits, lat, rlat, hoppings=dict(), positions=dict(), overlaps=dict()
-                 , isorthogonal=isorthogonal, nsites=None, site_norbits=None, site_positions=None, orbital_types=None,
-                 isspinful=None, is_canonical_ordered={})
-
+    tm = TBModel(norbits=norbits,
+                 lat=lat,
+                 rlat=rlat,
+                 hoppings=dict(),
+                 positions=dict(),
+                 overlaps=dict(),
+                 isorthogonal=isorthogonal,
+                 nsites=nsites,
+                 site_norbits=site_norbits,
+                 site_positions=site_positions,
+                 orbital_types=orbital_types,
+                 isspinful=isspinful,
+                 is_canonical_ordered=is_canonical_ordered)
+    R0 = (0, 0, 0)
     tm.overlaps[R0] = np.eye(norbits)
+    tm.positions[R0] = [np.zeros((norbits, norbits), dtype=complex) for _ in range(3)]
 
-    for n in range(norbits):
-        for alpha in range(1, 4):
-            tm.set_position(R0, n, n, alpha, orbital_positions[alpha-1, n])
+    for i in range(nsites):
+        for p in range(site_norbits[i]):
+            for alpha in range(3):
+                n = tm._to_orbital_index((i, p))  # You need to define the _to_orbital_index function in Python
+                tm.positions[R0][alpha][n - 1, n - 1] = site_positions[alpha, i]
+
     return tm
 
 # def set_position(tm, R, n, m, α, val):
 #     if R not in tm["positions"]:
 #         tm["positions"][R] = np.zeros((tm["norbits"], tm["norbits"], 3))
 #     tm["positions"][R][n, m, α] = val
-
 
 
 ###

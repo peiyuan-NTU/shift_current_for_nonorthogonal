@@ -180,7 +180,8 @@ class TBModel:
     def _to_orbital_index(self, i_n_tuple):
         i, n = i_n_tuple
         if self.isspinful:
-            tmp1 = sum(self.site_norbits[:i - 1]) // 2
+            # tmp1 = sum(self.site_norbits[:i - 1]) // 2
+            tmp1 = sum(self.site_norbits[:i]) // 2
             tmp2 = self.site_norbits[i] // 2
             tmp3 = self.norbits // 2
 
@@ -189,54 +190,56 @@ class TBModel:
             else:
                 return tmp1 + n
         else:
-            return sum(self.site_norbits[:i - 1]) + n
+            return sum(self.site_norbits[:i]) + n
 
-    import numpy as np
-
-    def add_hopping2(self, R, n, m, hopping):
-        print("11111111111111111111111111111111111111111")
+    def add_hopping_inner(self, R, n, m, hopping):
+        # print("11111111111111111111111111111111111111111")
 
         norbits = self.norbits
-        if n not in range(1, norbits + 1) or m not in range(1, norbits + 1):
+        if n not in range(norbits) or m not in range(norbits):
             raise ValueError("n or m not in range 1-norbits.")
 
         if len(R) != 3:
             raise ValueError("R should be a 3-element vector.")
 
-        R0 = (0, 0, 0)
+        # n, m = n - 1, m - 1
         if R == R0 and n == m and np.imag(hopping) > 1e-10:
             raise ValueError("On site energy should be real.")
 
         if R not in self.hoppings:
             self.hoppings[R] = np.zeros((norbits, norbits), dtype=complex)
-            self.hoppings[tuple(-np.array(R))] = np.zeros((norbits, norbits), dtype=complex)
+            self.hoppings[R2minus_R(R)] = np.zeros((norbits, norbits), dtype=complex)
 
         if R == R0 and n == m:
-            self.hoppings[R][n - 1, m - 1] += np.real(hopping)
+            self.hoppings[R][n, m] += np.real(hopping)
         else:
-            self.hoppings[R][n - 1, m - 1] += hopping
-            self.hoppings[tuple(-np.array(R))][m - 1, n - 1] += np.conj(hopping)
+            self.hoppings[R][n, m] += hopping
+            self.hoppings[R2minus_R(R)][m, n] += np.conj(hopping)
+        # print("self.hoppings[R]", self.hoppings[R])
+        # print("\n")
 
     def add_hopping(self, R, i_p, j_q, hopping):
-        print("444444444444444444444444444444444444444444444444444444444444444444")
+        # print("444444444444444444444444444444444444444444444444444444444444444444")
 
         if not self.has_full_information():
             raise ValueError("No site information is provided in the model.")
 
         i, p = i_p
         j, q = j_q
+        i, j, p, q = i - 1, j - 1, p - 1, q - 1
 
-        if i not in range(1, self.nsites + 1) or j not in range(1, self.nsites + 1):
+        if i not in range(self.nsites) or j not in range(self.nsites):
             raise ValueError("i or j not in range 1-nsites.")
 
-        i,j=i-1,j-1
-        if p not in range(1, self.site_norbits[i] + 1) or q not in range(1, self.site_norbits[j] + 1):
+        if p not in range(self.site_norbits[i]) or q not in range(self.site_norbits[j]):
             raise ValueError("n or m not in range 1-site_norbits.")
 
+        # p, q = p - 1, q - 1
         if len(R) != 3:
             raise ValueError("R should be a 3-element vector.")
-
-        self.add_hopping2(R, self._to_orbital_index((i, p)), self._to_orbital_index((j, q)), hopping)
+        # print("R", R, "i_p", i_p, "j_q", j_q, "hopping", hopping, "self._to_orbital_index((i, p))",
+        #       self._to_orbital_index((i, p)), "self._to_orbital_index((j, q))", self._to_orbital_index((j, q)))
+        self.add_hopping_inner(R, self._to_orbital_index((i, p)), self._to_orbital_index((j, q)), hopping)
 
 
 def create_TBModel(norbits: int, lat: np.ndarray, isorthogonal=True):

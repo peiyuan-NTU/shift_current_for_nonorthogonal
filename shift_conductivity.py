@@ -1,4 +1,6 @@
 import numpy as np
+
+
 def get_shift_cond_k(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
     sigma_s = np.zeros(len(omega_s))
     get_shift_cond_k_inplace(sigma_s, tm, alpha, beta, gamma, omega_s, mu, k, epsilon=epsilon)
@@ -21,9 +23,10 @@ def get_shift_cond_k_inplace(sigma_s, tm, alpha, beta, gamma, omega_s, mu, k, ep
             fn = 1 if En < mu else 0
             fm = 1 if Em < mu else 0
             if fn != fm:
-                tmp = constant * (fn - fm) * np.imag(A_beta[m, n] * gdr_gamma_alpha[n, m] + A_gamma[m, n] * gdr_beta_alpha[n, m])
+                tmp = constant * (fn - fm) * np.imag(
+                    A_beta[m, n] * gdr_gamma_alpha[n, m] + A_gamma[m, n] * gdr_beta_alpha[n, m])
                 for i_omega in range(n_omega_s):
                     omega = omega_s[i_omega]
-                    sigma_s[i_omega] += tmp * np.exp(-(En - Em - omega)**2 / epsilon**2)
+                    sigma_s[i_omega] += tmp * np.exp(-(En - Em - omega) ** 2 / epsilon ** 2)
 
     return None

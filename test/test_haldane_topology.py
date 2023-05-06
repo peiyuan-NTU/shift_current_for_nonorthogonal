@@ -1,7 +1,6 @@
 from tbm import create_info_missing_tb_model
 import numpy as np
-from
-
+from topology import get_wilson_spectrum
 
 # def getHaldane():
 lat = np.array([[1, 1 / 2, 0], [0, np.sqrt(3) / 2, 0], [0, 0, 10.0]])
@@ -28,7 +27,16 @@ haldane.add_hopping(tuple([1, 0, 0]), (2, 1), (2, 1), t2c)
 haldane.add_hopping(tuple([1, -1, 0]), (1, 1), (1, 1), t2c)
 haldane.add_hopping(tuple([0, 1, 0]), (1, 1), (1, 1), t2c)
 
-    # return haldane
+# return haldane
 
 # getHaldane()
-
+tmp = get_wilson_spectrum(tm=haldane,
+                          band_indices=[0],
+                          kpaths=np.array([(0, 1.0 / 3, 0), (1, 1.0 / 3, 0)]).T,
+                          ndiv=1000)
+print("error1", tmp[0] / np.pi + 0.5497)
+tmp2 = get_wilson_spectrum(tm=haldane,
+                          band_indices=[0],
+                          kpaths=np.array([(0, 1.0 / 6, 0), (1, 1.0 / 6, 0)]).T,
+                          ndiv=1000)
+print("error2", tmp2[0] / np.pi + 0.8374)

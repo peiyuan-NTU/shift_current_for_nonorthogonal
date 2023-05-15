@@ -36,7 +36,7 @@ tmp = get_wilson_spectrum(tm=haldane,
                           ndiv=1000)
 print("error1", tmp[0] / np.pi + 0.5497)
 tmp2 = get_wilson_spectrum(tm=haldane,
-                          band_indices=[0],
-                          kpaths=np.array([(0, 1.0 / 6, 0), (1, 1.0 / 6, 0)]).T,
-                          ndiv=1000)
+                           band_indices=[0],
+                           kpaths=np.array([(0, 1.0 / 6, 0), (1, 1.0 / 6, 0)]).T,
+                           ndiv=1000)
 print("error2", tmp2[0] / np.pi + 0.8374)

@@ -1,6 +1,6 @@
 import numpy as np
 from Basic_tool import get_hamiltonian_derivative, get_eigenvalues_for_tbm, get_overlap_derivative, construct_line_kpts, \
-    get_overlap
+    get_overlap, get_order
 
 DEGEN_THRESH = [1.0e-4]
 
@@ -21,7 +21,7 @@ def get_Aw(tm, alpha, k):
 
 def get_dAwbar(tm, alpha, order, k):
     dAw = get_dAw(tm, alpha, order, k)
-    V = get_eigenvalues_for_tbm(tm, k).vectors
+    V = get_eigenvalues_for_tbm(tm, k)[1]
     return V.T @ dAw @ V
 
 
@@ -31,35 +31,31 @@ def get_Awbar(tm, alpha, k):
 
 def get_dHbar(tm, order, k):
     dH = get_hamiltonian_derivative(tm, order, k)
-    V = get_eigenvalues_for_tbm(tm, k).vectors
+    print("k", k)
+    # print("dHsssssss", get_eigenvalues_for_tbm(tm, k))
+    V = get_eigenvalues_for_tbm(tm, k)[1]
     return np.conj(V.T) @ dH @ V
 
 
 def get_dSbar(tm, order, k):
     dS = get_overlap_derivative(tm, order, k)
-    V = get_eigenvalues_for_tbm(tm, k).vectors
+    V = get_eigenvalues_for_tbm(tm, k)[1]
     return np.conj(V.T) @ dS @ V
 
 
-def get_order(alpha):
-    order = [0, 0, 0]
-    order[alpha - 1] += 1
-    return tuple(order)
-
-
-def getD(tm, alpha, k):
+def get_D(tm, alpha, k):
     order = get_order(alpha)
     dHbar = get_dHbar(tm, order, k)
     dSbar = get_dSbar(tm, order, k)
-    Es = get_eigenvalues_for_tbm(tm, k)["values"]
-    D = np.zeros((tm["norbits"], tm["norbits"]), dtype=np.complex128)
+    Es = get_eigenvalues_for_tbm(tm, k)[0]
+    D = np.zeros((tm.norbits, tm.norbits), dtype=np.complex128)
     Awbar = get_Awbar(tm, alpha, k)
 
-    for m in range(tm["norbits"]):
-        for n in range(tm["norbits"]):
+    for m in range(tm.norbits):
+        for n in range(tm.norbits):
             En = Es[n]
             Em = Es[m]
-            if abs(En - Em) > DEGEN_THRESH[1]:
+            if abs(En - Em) > DEGEN_THRESH[0]:
                 D[n, m] = (dHbar[n, m] - Em * dSbar[n, m]) / (Em - En)
             else:
                 D[n, m] = 1j * Awbar[n, m]
@@ -68,7 +64,7 @@ def getD(tm, alpha, k):
 
 
 def Berry_connection(tm, k, alpha):
-    berry_connection = 1j * getD(tm, alpha, k) + get_Awbar(tm, alpha, k)
+    berry_connection = 1j * get_D(tm, alpha, k) + get_Awbar(tm, alpha, k)
     return berry_connection
 
 
@@ -127,3 +123,14 @@ def get_wilson_spectrum(tm, band_indices, kpaths, ndiv):
 
     result = get_wilson_spectrum_inner(tm, get_U, kpaths, ndiv)
     return result
+
+
+def get_dEs(tm, alpha, k):
+    order = get_order(alpha)
+    dHbar = get_dHbar(tm, order, k)
+    dSbar = get_dSbar(tm, order, k)
+    Es = get_eigenvalues_for_tbm(tm, k)[0]
+    dEs = np.zeros(tm.norbits)
+    for n in range(tm.norbits):
+        dEs[n] = np.real(dHbar[n, n] - Es[n] * dSbar[n, n])
+    return dEs

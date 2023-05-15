@@ -1,15 +1,31 @@
 import numpy as np
 from tbm import TBModel
+import scipy.linalg as la
+
+DEGEN_THRESH = [1.0e-4]
 
 
-def _get_overlap_derivative(sm, order, k):
-    n_half_Rs = (sm.Rs.shape[1] + 1) // 2
-    n_orbits = sm.norbits
-    coefficients = (1j ** sum(order) *
-                    np.prod(sm.Rcs ** order, axis=1) *
-                    np.exp(1j * 2 * np.pi * (np.dot(k, sm.Rs.T))))
-    tmp = np.reshape(sm.S @ coefficients[0, :n_half_Rs], (n_orbits, n_orbits))
-    return tmp.T + tmp
+# def _get_overlap_derivative(sm, order, k):
+#     Rs = len(sm.hoppings.keys())
+#     n_half_Rs = (Rs.shape[1] + 1) // 2
+#     n_orbits = sm.norbits
+#     coefficients = (1j ** sum(order) *
+#                     np.prod(sm.Rcs ** order, axis=1) *
+#                     np.exp(1j * 2 * np.pi * (np.dot(k, sm.Rs.T))))
+#     tmp = np.reshape(sm.S @ coefficients[0, :n_half_Rs], (n_orbits, n_orbits))
+#     return tmp.T + tmp
+
+def _get_overlap_derivative(nm, order, k):
+    dS = np.zeros((nm.norbits, nm.norbits), dtype=np.complex128)
+    for R, overlap in nm.overlaps.items():
+        Rc = nm.lat @ R  # R in Cartesian coordinate
+        phase = np.exp(1j * 2 * np.pi * np.dot(k, R))
+
+        coeff = (1j * Rc[0]) ** order[0] * (1j * Rc[1]) ** order[1] * (1j * Rc[2]) ** order[2] * phase
+        dS += coeff * overlap
+    return dS
+
+
 
 
 def get_overlap_derivative(tbm, order, k):
@@ -62,11 +78,11 @@ def get_eigenvalues_for_tbm(tbm: TBModel, k):
     # H = H.T
     # print("H", H)
     if tbm.isorthogonal:
-        return np.linalg.eigh(make_hermitian(H))
+        return la.eigh(make_hermitian(H))
     if not tbm.isorthogonal:
         S = get_overlap(tbm, k)
         # return np.linalg.eigh(get_hamiltonian_for_k(tbm, k), b=tbm.overlaps[R0])
-        return np.linalg.eigh(H, b=make_hermitian(S))
+        return la.eigh(make_hermitian(H), make_hermitian(S), eigvals_only=False)
 
 
 def construct_line_kpts(kpath, pnkpts, connect_end_points=False):
@@ -94,3 +110,17 @@ def construct_line_kpts(kpath, pnkpts, connect_end_points=False):
             kpts[:, ikpt + ipath * pnkpts] = kstart + ikpt * dk
 
     return kpts
+
+
+def get_order(alpha):
+    print("alpha", alpha)
+    order = [0, 0, 0]
+    order[alpha - 1] += 1
+    return tuple(order)
+
+
+def get_two_order(alpha, beta):
+    order = [0, 0, 0]
+    order[alpha] += 1
+    order[beta] += 1
+    return tuple(order)

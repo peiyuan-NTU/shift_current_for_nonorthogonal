@@ -258,33 +258,34 @@ def create_info_missing_tb_model(lat: np.ndarray, site_positions, orbital_types,
         raise ValueError("Size of lat is not correct.")
 
     rlat = 2 * np.pi * np.linalg.inv(lat).T
-    nsites = site_positions.shape[1]
-    nspins = 1 + isspinful
-    site_norbits = np.array([sum(2 * np.array(orbital_types[i]) + 1) for i in range(nsites)]) * nspins
-    norbits = sum(site_norbits)
+    n_sites = site_positions.shape[1]
+    n_spins = 1 + isspinful
+    site_norbits = np.array([sum(2 * np.array(orbital_types[i]) + 1) for i in range(n_sites)]) * n_spins
+    n_orbits = sum(site_norbits)
 
-    tm = TBModel(norbits=norbits,
+    tm = TBModel(norbits=n_orbits,
                  lat=lat,
                  rlat=rlat,
                  hoppings=dict(),
                  positions=dict(),
                  overlaps=dict(),
                  isorthogonal=isorthogonal,
-                 nsites=nsites,
+                 nsites=n_sites,
                  site_norbits=site_norbits,
                  site_positions=site_positions,
                  orbital_types=orbital_types,
                  isspinful=isspinful,
                  is_canonical_ordered=is_canonical_ordered)
     R0 = (0, 0, 0)
-    tm.overlaps[R0] = np.eye(norbits)
-    tm.positions[R0] = [np.zeros((norbits, norbits), dtype=complex) for _ in range(3)]
+    tm.overlaps[R0] = np.eye(n_orbits)
+    tm.positions[R0] = [np.zeros((n_orbits, n_orbits), dtype=complex) for _ in range(3)]
 
-    for i in range(nsites):
+    for i in range(n_sites):
         for p in range(site_norbits[i]):
             for alpha in range(3):
-                n = tm._to_orbital_index((i, p))  # You need to define the _to_orbital_index function in Python
-                tm.positions[R0][alpha][n - 1, n - 1] = site_positions[alpha, i]
+                n = tm._to_orbital_index((i, p))
+                # print("n", n)
+                tm.positions[R0][alpha][n, n] = site_positions[alpha, i]
 
     return tm
 

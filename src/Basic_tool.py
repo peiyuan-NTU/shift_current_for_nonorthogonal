@@ -1,6 +1,7 @@
 import numpy as np
 from tbm import TBModel
 import scipy.linalg as la
+# import
 
 DEGEN_THRESH = [1.0e-4]
 
@@ -20,12 +21,9 @@ def _get_overlap_derivative(nm, order, k):
     for R, overlap in nm.overlaps.items():
         Rc = nm.lat @ R  # R in Cartesian coordinate
         phase = np.exp(1j * 2 * np.pi * np.dot(k, R))
-
         coeff = (1j * Rc[0]) ** order[0] * (1j * Rc[1]) ** order[1] * (1j * Rc[2]) ** order[2] * phase
         dS += coeff * overlap
     return dS
-
-
 
 
 def get_overlap_derivative(tbm, order, k):
@@ -73,7 +71,7 @@ def get_hamiltonian_for_k(tbm: TBModel, k):
     return get_hamiltonian_derivative(tbm, [0, 0, 0], k)
 
 
-def get_eigenvalues_for_tbm(tbm: TBModel, k):
+def get_eigen_for_tbm(tbm: TBModel, k):
     H = get_hamiltonian_for_k(tbm, k)
     # H = H.T
     # print("H", H)
@@ -81,8 +79,9 @@ def get_eigenvalues_for_tbm(tbm: TBModel, k):
         return la.eigh(make_hermitian(H))
     if not tbm.isorthogonal:
         S = get_overlap(tbm, k)
-        # return np.linalg.eigh(get_hamiltonian_for_k(tbm, k), b=tbm.overlaps[R0])
-        return la.eigh(make_hermitian(H), make_hermitian(S), eigvals_only=False)
+        # print("H", make_hermitian(H))
+        # print("S", make_hermitian(S))
+        return la.eigh(a=make_hermitian(H), b=make_hermitian(S))
 
 
 def construct_line_kpts(kpath, pnkpts, connect_end_points=False):
@@ -113,7 +112,7 @@ def construct_line_kpts(kpath, pnkpts, connect_end_points=False):
 
 
 def get_order(alpha):
-    print("alpha", alpha)
+    # print("alpha", alpha)
     order = [0, 0, 0]
     order[alpha - 1] += 1
     return tuple(order)
@@ -121,6 +120,6 @@ def get_order(alpha):
 
 def get_two_order(alpha, beta):
     order = [0, 0, 0]
-    order[alpha] += 1
-    order[beta] += 1
+    order[alpha - 1] += 1
+    order[beta - 1] += 1
     return tuple(order)

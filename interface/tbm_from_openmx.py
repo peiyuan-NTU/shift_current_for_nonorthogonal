@@ -1,5 +1,5 @@
 from data.parse_openmx import read_openmx39
-from tbm import create_TBModel
+from src.tbm import create_TBModel
 from copy import deepcopy
 
 
@@ -10,6 +10,7 @@ def calcassistvars(Total_NumOrbs):
     for i in range(1, len(Total_NumOrbs)):
         numorb_base[i] = numorb_base[i - 1] + Total_NumOrbs[i - 1]
     return numorb_base
+
 
 def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
     # def construct_tight_binding_model_from_openmx:
@@ -78,9 +79,11 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                         # print("Hk[0][i][j][jj, ii]", Hk[0][i][j][jj, ii])
                         # print("\n")
                         # print("ncn[i][j]", ncn[i][j])
-                        nm.set_hopping(tuple(atv_ijk[:, ncn[i][j]-1]), numorb_base[i] + ii, numorb_base[natn[i][j] - 1] + jj,
+                        nm.set_hopping(tuple(atv_ijk[:, ncn[i][j] - 1]), numorb_base[i] + ii,
+                                       numorb_base[natn[i][j] - 1] + jj,
                                        Hk[0][i][j][jj, ii])
-                        nm.set_overlap(tuple(atv_ijk[:, ncn[i][j]-1]), numorb_base[i] + ii, numorb_base[natn[i][j] - 1] + jj,
+                        nm.set_overlap(tuple(atv_ijk[:, ncn[i][j] - 1]), numorb_base[i] + ii,
+                                       numorb_base[natn[i][j] - 1] + jj,
                                        OLP[i][j][jj, ii])
 
         for i in range(atomnum):
@@ -88,9 +91,9 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                 for ii in range(Total_NumOrbs[i]):
                     for jj in range(Total_NumOrbs[natn[i][j] - 1]):
                         for alpha in range(1, 4):
-                            nm.set_position(tuple(atv_ijk[:, ncn[i][j]-1]), numorb_base[i] + ii,
+                            nm.set_position(tuple(atv_ijk[:, ncn[i][j] - 1]), numorb_base[i] + ii,
                                             numorb_base[natn[i][j] - 1] + jj, alpha,
-                                            OLP_r[alpha-1][i][j][jj, ii])
+                                            OLP_r[alpha - 1][i][j][jj, ii])
     return nm
 
 

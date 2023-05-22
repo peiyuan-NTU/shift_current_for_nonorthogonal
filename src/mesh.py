@@ -22,10 +22,13 @@ class UniformMesh:
         #         self.a[2] * self.mesh_size[2]) == 1:
         #     raise StopIteration
         # print("a", self.a)
-        if self.a[0] + 1 == self.mesh_size[0] and self.a[1] + 1 == self.mesh_size[1] and self.a[2] + 1 == \
-                self.mesh_size[2]:
+        # if self.a[0] + 1 == self.mesh_size[0] and self.a[1] + 1 == self.mesh_size[1] and self.a[2] + 1 == \
+        #         self.mesh_size[2]:
+        #     raise StopIteration
+        if self.a[2] == self.mesh_size[2]:
             raise StopIteration
         else:
+            point = self.a / self.mesh_size
             self.a[0] += 1
             # print("first", self.a)
             if self.a[0] == self.mesh_size[0]:
@@ -36,9 +39,7 @@ class UniformMesh:
                     self.a[1] = 0
                     self.a[2] += 1
                     # print("third", self.a)
-                    if self.a[2] == self.mesh_size[2]:
-                        raise StopIteration
-            point = self.a / self.mesh_size
+
         # print("return", self.a, "\n")
         return point
 
@@ -77,6 +78,8 @@ def create_uniform_mesh(mesh_size, startpoint=None, region_size=None, endboundar
 
 if __name__ == '__main__':
     mesh = create_uniform_mesh([100, 100, 1])
-    for i in mesh:
-        print(i)
-        # pass
+    tmp = list(mesh)
+    print(len(tmp))
+    # for i in mesh:
+    #     print(i)
+    # pass

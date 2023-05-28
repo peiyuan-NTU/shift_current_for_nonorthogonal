@@ -11,9 +11,15 @@ def get_dAw(tm, alpha, order, k):
         raise ValueError("alpha incorrect!")
     dAw = np.zeros((tm.norbits, tm.norbits), dtype=np.complex128)
     for R, pos in tm.positions.items():
+
+        # R in Cartesian coordinate
         Rc = tm.lat @ R
+
+        # e^i(kR)*2pi
         phase = np.exp(1j * 2 * np.pi * (k @ R))
+
         coeff = (1j * Rc[0]) ** order[0] * (1j * Rc[1]) ** order[1] * (1j * Rc[2]) ** order[2] * phase
+
         dAw += coeff * pos[alpha - 1]
         # print("R", R, "pos", pos, "coeff", coeff)
     return dAw.conj().T

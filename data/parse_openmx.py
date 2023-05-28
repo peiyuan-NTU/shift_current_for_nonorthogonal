@@ -55,7 +55,6 @@ def read_openmx39(file_name):
                 map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
                 Hk))
 
-
         iHk = read_matrix_in_mixed_matrix(np.float64, f, 3, atomnum, FNAN, natn,
                                           Total_NumOrbs) if SpinP_switch == 3 else None
         if iHk is not None:
@@ -66,8 +65,6 @@ def read_openmx39(file_name):
         OLP = read_matrix_in_mixed_matrix(np.float64, f, 1, atomnum, FNAN, natn, Total_NumOrbs)[0]
         OLP = list(map(lambda strip_1: list(map(lambda nd_array: nd_array.T, strip_1)), OLP))
 
-
-
         OLP_r = []
         for i in range(3):
             for order in range(order_max):
@@ -76,9 +73,9 @@ def read_openmx39(file_name):
                 if order == 0:
                     OLP_r.append(tmp)
         OLP_r = list(
-                map(lambda strip_1: list(
-                    map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
-                    OLP_r))
+            map(lambda strip_1: list(
+                map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
+                OLP_r))
         OLP_p = read_matrix_in_mixed_matrix(np.float64, f, 3, atomnum, FNAN, natn, Total_NumOrbs)
         # OLP_p = list(map(lambda strip_1: list(map(lambda nd_array: nd_array.T, strip_1)), OLP_p))
         DM = read_matrix_in_mixed_matrix(np.float64, f, SpinP_switch + 1, atomnum, FNAN, natn, Total_NumOrbs)
@@ -125,11 +122,10 @@ def read_openmx39(file_name):
         assert f.readline() == b"\n"
         #
         #
-        #
+
         atom_frac_pos = np.zeros((3, atomnum))
         for i in range(atomnum):
             line = f.readline()
-
             m = re.match(r"^\s*\d+\s+\w+\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)", line.decode("utf-8"))
             # print(line)
             # print(m.groups())
@@ -139,6 +135,10 @@ def read_openmx39(file_name):
         f.close()
         #
         # # # use the atom_pos to fix
+
+        """
+        
+        """
         for axis in range(3):
             for i in range(atomnum):
                 for j in range(FNAN[i]):
@@ -146,6 +146,45 @@ def read_openmx39(file_name):
         # #
         # # # fix type mismatch
         atv_ijk = atv_ijk.astype(np.int16)
+        """
+        natn[][]:
+            grobal index of neighboring atoms of an atom ct_AN
+        ncn[][]:
+            grobal index for cell of neighboring atoms of an atom ct_AN
+        tv[4][4]:
+            unit cell vectors in Bohr
+        rtv[4][4]:
+            unit cell vectors in Bohr
+        Gxyz[][1-3]:
+            atomic coordinates in Bohr  
+        iHks:
+           imaginary Kohn-Sham matrix elements of basis orbitals
+           for alpha-alpha, beta-beta, and alpha-beta spin matrices
+           of which contributions come from spin-orbit coupling 
+           and Hubbard U effective potential.
+           
+        """
+        """
+        Hks Kohn-Sham Hamiltonian 
+            dooble Hks[SpinP_switch+1]
+                        [atomnum+1]
+                        [FNAN[ct_AN]+1]
+                        [Total_NumOrbs[ct_AN]]
+                        [Total_NumOrbs[h_AN]];
+        Overlap matrix
+            dooble OLP[atomnum+1]
+                    [FNAN[ct_AN]+1]
+                    [Total_NumOrbs[ct_AN]]
+                    [Total_NumOrbs[h_AN]]; 
+        Overlap matrix with position operator x, y, z
+            double ******OLPpo;
+                        [3]
+                        [1]
+                        [atomnum+1]
+                        [FNAN[ct_AN]+1]
+                        [Total_NumOrbs[ct_AN]]
+                        [Total_NumOrbs[h_AN]];
+        """
 
         result_dict = {"atomnum": atomnum,
                        "SpinP_switch": SpinP_switch,
@@ -159,7 +198,8 @@ def read_openmx39(file_name):
                        "Hk": Hk,
                        "iHk": iHk,
                        "OLP": OLP,
-                       "OLP_r": OLP_r}
+                       "OLP_r": OLP_r,
+                       "atom_pos": atom_pos}
         return result_dict
 
 

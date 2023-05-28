@@ -81,7 +81,8 @@ class TBModel:
                 return False
         return True
 
-    def _to_site_index(self, n):
+    def to_site_index(self, n):
+        # l is
         l = [self.site_norbits[i] // (1 + self.isspinful) for i in range(self.nsites)]
         N = self.norbits // (1 + self.isspinful)
         s = 0
@@ -97,6 +98,29 @@ class TBModel:
                 break
         return i + 1, n - sum(l[0:i]) + s * l[i]
 
+    def to_orbital_index(self, site, site_orbital):
+        # i, n = i_n_tuple
+        i = site
+        n = site_orbital
+        if self.isspinful:
+            # tmp1 = sum(self.site_norbits[:i - 1]) // 2
+            tmp1 = sum(self.site_norbits[:i]) // 2
+            tmp2 = self.site_norbits[i] // 2
+            tmp3 = self.norbits // 2
+
+            if n > tmp2:
+                return tmp3 + tmp1 + n - tmp2
+            else:
+                return tmp1 + n
+        else:
+            return sum(self.site_norbits[:i]) + n
+
+
+    """
+    ⟨0n|``r_α``|Rm⟩ 
+    position of orbital n in unit cell R in direction α
+    """
+
     def set_position(self, R, n, m, alpha, pos, position_tolerance=1.0e-4):
         if not (0 <= n <= self.norbits and 0 <= m <= self.norbits):
             raise ValueError("n or m not in range 1-norbits.")
@@ -107,7 +131,7 @@ class TBModel:
         if R == R0 and n == m and abs(pos.imag) > IMAG_TOL:
             raise ValueError("Position of one orbital with itself should be real.")
         if R == R0 and n == m and self.has_full_information():
-            i = self._to_site_index(self, n)[0]
+            i = self.to_site_index(self, n)[0]
             if not np.isclose(self.site_positions[alpha - 1, i] * self.overlaps[R0][n, n], pos,
                               atol=position_tolerance):
                 raise ValueError("pos incompatible with site_positions and overlaps.")
@@ -129,6 +153,11 @@ class TBModel:
             # print(type(np.conj(pos) - self.lat[alpha - 1] * tmp))
             self.positions[R2minus_R(R)][alpha - 1][m, n] = np.conj(pos) - (self.lat @ R)[alpha - 1] * tmp
 
+    """
+    ⟨0n|H|Rm⟩ 
+    Hopping between orbitals n and m on sites 0 and R.
+    """
+
     def set_hopping(self, R, n, m, hopping):
         if not (0 <= n <= self.norbits) or not (0 <= m <= self.norbits):
             raise ValueError("n or m not in range 1-norbits.")
@@ -149,6 +178,11 @@ class TBModel:
             # print("R ")
             self.hoppings[R][n, m] = hopping
             self.hoppings[R2minus_R(R)][m, n] = np.conj(hopping)
+
+    """
+    ⟨0n|Rm⟩ 
+    Overlap between orbitals n and m on sites 0 and R.
+    """
 
     def set_overlap(self, R, n, m, overlap):
         if not (0 <= n <= self.norbits) or not (0 <= m <= self.norbits):
@@ -174,23 +208,8 @@ class TBModel:
             self.overlaps[R2minus_R(R)][m, n] = np.conj(overlap)
 
         if R == R0 and n == m and self.has_full_information():
-            i = self._to_site_index(self, n)[0]
+            i = self.to_site_index(self, n)[0]
             self.set_position(self, R0, n, n, self.site_positions[:, i] * self.overlaps[R0][n, n])
-
-    def _to_orbital_index(self, i_n_tuple):
-        i, n = i_n_tuple
-        if self.isspinful:
-            # tmp1 = sum(self.site_norbits[:i - 1]) // 2
-            tmp1 = sum(self.site_norbits[:i]) // 2
-            tmp2 = self.site_norbits[i] // 2
-            tmp3 = self.norbits // 2
-
-            if n > tmp2:
-                return tmp3 + tmp1 + n - tmp2
-            else:
-                return tmp1 + n
-        else:
-            return sum(self.site_norbits[:i]) + n
 
     def add_hopping_inner(self, R, n, m, hopping):
         # print("11111111111111111111111111111111111111111")
@@ -239,7 +258,7 @@ class TBModel:
             raise ValueError("R should be a 3-element vector.")
         # print("R", R, "i_p", i_p, "j_q", j_q, "hopping", hopping, "self._to_orbital_index((i, p))",
         #       self._to_orbital_index((i, p)), "self._to_orbital_index((j, q))", self._to_orbital_index((j, q)))
-        self.add_hopping_inner(R, self._to_orbital_index((i, p)), self._to_orbital_index((j, q)), hopping)
+        self.add_hopping_inner(R, self.to_orbital_index((i, p)), self.to_orbital_index((j, q)), hopping)
 
 
 def create_TBModel(norbits: int, lat: np.ndarray, isorthogonal=True):
@@ -263,6 +282,33 @@ def create_info_missing_tb_model(lat: np.ndarray, site_positions, orbital_types,
     site_norbits = np.array([sum(2 * np.array(orbital_types[i]) + 1) for i in range(n_sites)]) * n_spins
     n_orbits = sum(site_norbits)
 
+    """
+    n_orbit
+        number of orbitals in the system
+    lat
+        lattice vectors
+    rlat
+        reciprocal lattice vectors
+    hoppings
+        hopping matrices, keys are R vectors
+    positions
+        position matrices, keys are R vectors
+    overlaps
+        overlap matrices, keys are R vectors
+    isorthogonal
+        whether the bases are orthogonal
+    nsites
+        number of atoms in the system
+    site_norbits
+        number of orbitals on each atom
+    site_positions
+        
+    isspinful
+        whether the system is spinful
+    is_canonical_ordered
+        whether the orbitals are in canonical order
+        
+    """
     tm = TBModel(norbits=n_orbits,
                  lat=lat,
                  rlat=rlat,
@@ -283,7 +329,9 @@ def create_info_missing_tb_model(lat: np.ndarray, site_positions, orbital_types,
     for i in range(n_sites):
         for p in range(site_norbits[i]):
             for alpha in range(3):
-                n = tm._to_orbital_index((i, p))
+                # n = tm.to_orbital_index((i, p))
+                n = tm.to_orbital_index(site=i,
+                                        site_orbital=p)
                 # print("n", n)
                 tm.positions[R0][alpha][n, n] = site_positions[alpha, i]
 

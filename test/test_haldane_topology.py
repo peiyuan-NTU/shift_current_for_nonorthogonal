@@ -1,4 +1,4 @@
-from src.tbm import create_info_missing_tb_model
+from src.tight_binding_model import create_info_missing_tb_model
 import numpy as np
 from src.topology import get_wilson_spectrum
 

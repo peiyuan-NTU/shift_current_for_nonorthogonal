@@ -1,5 +1,5 @@
 from data.parse_openmx import read_openmx39
-from src.tbm import create_TBModel
+from src.tight_binding_model import create_TBModel
 from copy import deepcopy
 
 
@@ -32,6 +32,7 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
     numorb_base = calcassistvars(Total_NumOrbs)
     # print("numorb_base", numorb_base)
     Total_NumOrbs_sum = sum(Total_NumOrbs)
+    print("Total_NumOrbs_sum", Total_NumOrbs_sum, "Total_NumOrbs", Total_NumOrbs)
     atv = atv * 0.529177249
     tv = tv * 0.529177249
 
@@ -79,21 +80,25 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                         # print("Hk[0][i][j][jj, ii]", Hk[0][i][j][jj, ii])
                         # print("\n")
                         # print("ncn[i][j]", ncn[i][j])
-                        nm.set_hopping(tuple(atv_ijk[:, ncn[i][j] - 1]), numorb_base[i] + ii,
-                                       numorb_base[natn[i][j] - 1] + jj,
-                                       Hk[0][i][j][jj, ii])
-                        nm.set_overlap(tuple(atv_ijk[:, ncn[i][j] - 1]), numorb_base[i] + ii,
-                                       numorb_base[natn[i][j] - 1] + jj,
-                                       OLP[i][j][jj, ii])
+                        nm.set_hopping(R=tuple(atv_ijk[:, ncn[i][j] - 1]),
+                                       n=numorb_base[i] + ii,
+                                       m=numorb_base[natn[i][j] - 1] + jj,
+                                       hppping=Hk[0][i][j][jj, ii])
+                        nm.set_overlap(R=tuple(atv_ijk[:, ncn[i][j] - 1]),
+                                       n=numorb_base[i] + ii,
+                                       m=numorb_base[natn[i][j] - 1] + jj,
+                                       overlap=OLP[i][j][jj, ii])
 
         for i in range(atomnum):
             for j in range(FNAN[0]):
                 for ii in range(Total_NumOrbs[i]):
                     for jj in range(Total_NumOrbs[natn[i][j] - 1]):
                         for alpha in range(1, 4):
-                            nm.set_position(tuple(atv_ijk[:, ncn[i][j] - 1]), numorb_base[i] + ii,
-                                            numorb_base[natn[i][j] - 1] + jj, alpha,
-                                            OLP_r[alpha - 1][i][j][jj, ii])
+                            nm.set_position(R=tuple(atv_ijk[:, ncn[i][j] - 1]),
+                                            n=numorb_base[i] + ii,
+                                            m=numorb_base[natn[i][j] - 1] + jj,
+                                            alpha=alpha,
+                                            pos=OLP_r[alpha - 1][i][j][jj, ii])
     return nm
 
 

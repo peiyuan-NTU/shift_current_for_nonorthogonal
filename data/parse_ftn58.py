@@ -56,7 +56,7 @@ def read_ftn58(file_name="Rhsi_ftn58.mat"):
     mat = scipy.io.loadmat(weyl_path)
     # ftn58 = mat['ftn58']
     ftn58 = mat['ftn58sparse']
-    dd= ftn58["dd"][0][0]  # supercell vector
+    dd = ftn58["dd"][0][0]  # supercell vector
     tt = ftn58["tt"][0][0]  # hopping
     ij = ftn58["ij"][0][0] - 1  # orbital index
     BR = ftn58["BR"][0][0]  # lattice vector
@@ -64,8 +64,15 @@ def read_ftn58(file_name="Rhsi_ftn58.mat"):
     # elements = ftn58[1:, :]
     dd.astype(int)
     ij.astype(int)
-    atom_and_orbital = [[orbital_index_to_atom_and_orbital(i[0]+1),
-                         orbital_index_to_atom_and_orbital(i[1]+1)] for i in ij]
+    atom_and_orbital = [[orbital_index_to_atom_and_orbital(i[0] + 1),
+                         orbital_index_to_atom_and_orbital(i[1] + 1)] for i in ij]
+
+    orbital2atom_orb = {}
+    for orbital in range(32):
+        orbital2atom_orb[str(orbital)] = [orbital_index_to_atom_and_orbital(orbital + 1)][0][0]
+
+    # atom_orb2orbital={}
+    # for atom in range(8):
 
     result = {
         "n_orbital": n_orbital,
@@ -74,7 +81,9 @@ def read_ftn58(file_name="Rhsi_ftn58.mat"):
         "orbital_index": ij,
         "lattice_vector": BR,
         "full_info": ftn58,
-        "atom_and_orbital": atom_and_orbital}
+        "atom_and_orbital": atom_and_orbital,
+        "orbital2atom_orb": orbital2atom_orb
+    }
     return result
 
 
@@ -88,6 +97,5 @@ if __name__ == "__main__":
     lattice_vector = ftn58_dict["lattice_vector"]
     full_info = ftn58_dict["full_info"]
     atom_and_orbital = ftn58_dict["atom_and_orbital"]
-
+    orbital2atom_orb = ftn58_dict["orbital2atom_orb"]
     # print(read_ftn58())
-

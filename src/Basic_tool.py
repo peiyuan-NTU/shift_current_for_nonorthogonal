@@ -1,5 +1,5 @@
 import numpy as np
-from tight_binding_model import TBModel
+from src.tight_binding_model import TBModel
 import scipy.linalg as la
 # import
 

@@ -124,9 +124,10 @@ def read_openmx39(file_name):
         #
 
         atom_frac_pos = np.zeros((3, atomnum))
+        coordinates_pattern = r"^\s*\d+\s+\w+\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)"
         for i in range(atomnum):
             line = f.readline()
-            m = re.match(r"^\s*\d+\s+\w+\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)", line.decode("utf-8"))
+            m = re.match(coordinates_pattern, line.decode("utf-8"))
             # print(line)
             # print(m.groups())
             atom_frac_pos[:, i] = np.array(list(map(float, m.groups())))

@@ -146,6 +146,7 @@ def get_shift_cond_inner_parallel(tm, alpha, beta, gamma, omega_s, mu, mesh_size
     # print("brillouin_zone_volume = ", brillouin_zone_volume)
     # print("nks = ", nks)
     print("sigma_s = ", sigma_s)
+
     return sigma_s * brillouin_zone_volume / nks
 
 

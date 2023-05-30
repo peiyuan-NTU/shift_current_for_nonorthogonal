@@ -36,8 +36,9 @@ def read_3d_vecs(dtype, f, num):
 
 def read_openmx39(file_name):
     with open(file_name, "rb") as f:
+        print("reading", file_name)
         atomnum, SpinP_switch, Catomnum, Latomnum, Ratomnum, TCpyCell, order_max = multiread(np.int32, f, 7)
-        # print(atomnum, SpinP_switch, Catomnum, Latomnum, Ratomnum, TCpyCell, order_max)
+        print(atomnum, SpinP_switch, Catomnum, Latomnum, Ratomnum, TCpyCell, order_max)
         assert (SpinP_switch >> 2) == 3
         SpinP_switch &= 0x03
         # print("spin polarized", SpinP_switch)
@@ -107,31 +108,67 @@ def read_openmx39(file_name):
         target_line = bytearray("Fractional coordinates of the final structure", "utf-8")
         next_line = bytearray(f.readline())
 
-        # while not startswith1(strip1(next_line), target_line):
+
+        # # # # # # # # # # # # # # # # # # # #  new search coordinates
+        coordinates_type_pattern = "Atoms.SpeciesAndCoordinates.Unit\s+(\w+)"
         while 1:
-            stripped = strip1(next_line)
-            if startswith1(stripped, target_line):
+            coordinates_type = re.search(coordinates_type_pattern, next_line.decode("utf-8"))
+            if coordinates_type is not None:
+                Coordinates_type = coordinates_type.group(1)
+                # print(Coordinates_type)
                 break
-            if f.tell() == os.fstat(f.fileno()).st_size:
-                raise Exception(
-                    "Atom positions not found. Please check if the .out file was appended to the end of .scfout file!")
             next_line = bytearray(f.readline())
 
-        for i in range(2):
-            assert f.readline() == b'***********************************************************\n'
-        assert f.readline() == b"\n"
-        #
-        #
-
-        atom_frac_pos = np.zeros((3, atomnum))
-        coordinates_pattern = r"^\s*\d+\s+\w+\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)"
+        next_line = bytearray(f.readline())
+        all_coordinates = []
+        coordinates_pattern = r"\s*\d+\s+(\w+)\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+).*"
+        while 1:
+            find = re.search(coordinates_pattern, next_line.decode("utf-8"))
+            if find is not None:
+                # print(find.groups())
+                all_coordinates.append(find.groups())
+                for i in range(atomnum-1):
+                    next_line = bytearray(f.readline())
+                    all_coordinates.append(re.search(coordinates_pattern, next_line.decode("utf-8")).groups())
+                break
+            next_line = bytearray(f.readline())
+        # print("all_coordinates", all_coordinates)
+        atom_positions = np.zeros((3, atomnum))
         for i in range(atomnum):
-            line = f.readline()
-            m = re.match(coordinates_pattern, line.decode("utf-8"))
-            # print(line)
-            # print(m.groups())
-            atom_frac_pos[:, i] = np.array(list(map(float, m.groups())))
-        atom_pos = tv.dot(atom_frac_pos)
+            atom_positions[:, i] = np.array(list(map(float, all_coordinates[i][1:])))
+        if Coordinates_type.lower() == "frac":
+            atom_positions = np.dot(tv.T, atom_positions)
+        # print("atom_positions", atom_positions)
+        # # # # # # # # # # # # # # # # # # # #  new search coordinates end
+
+        # # # # # # # # # # # # # # # # # # # #  Wangchong search coordinates
+        # # while not startswith1(strip1(next_line), target_line):
+        # while 1:
+        #     stripped = strip1(next_line)
+        #     if startswith1(stripped, target_line):
+        #         break
+        #     if f.tell() == os.fstat(f.fileno()).st_size:
+        #         raise Exception(
+        #             "Atom positions not found. Please check if the .out file was appended to the end of .scfout file!")
+        #     next_line = bytearray(f.readline())
+        #
+        # for i in range(2):
+        #     assert f.readline() == b'***********************************************************\n'
+        # assert f.readline() == b"\n"
+        # #
+        # #
+        #
+        # atom_frac_pos = np.zeros((3, atomnum))
+        # coordinates_pattern = r"^\s*\d+\s+\w+\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)\s+([0-9+-.Ee]+)"
+        # for i in range(atomnum):
+        #     line = f.readline()
+        #     m = re.match(coordinates_pattern, line.decode("utf-8"))
+        #     # print(line)
+        #     # print(m.groups())
+        #     atom_frac_pos[:, i] = np.array(list(map(float, m.groups())))
+        # atom_pos = tv.dot(atom_frac_pos)
+        # print("atom_pos", atom_pos)
+        # # # # # # # # # # # # # # # # # # # #  Wang chong search coordinates end
 
         f.close()
         #
@@ -143,7 +180,7 @@ def read_openmx39(file_name):
         for axis in range(3):
             for i in range(atomnum):
                 for j in range(FNAN[i]):
-                    OLP_r[axis][i][j] += atom_pos[axis, i] * OLP[i][j]
+                    OLP_r[axis][i][j] += atom_positions[axis, i] * OLP[i][j]
         # #
         # # # fix type mismatch
         atv_ijk = atv_ijk.astype(np.int16)
@@ -200,7 +237,7 @@ def read_openmx39(file_name):
                        "iHk": iHk,
                        "OLP": OLP,
                        "OLP_r": OLP_r,
-                       "atom_pos": atom_pos}
+                       "atom_pos": atom_positions}
         return result_dict
 
 

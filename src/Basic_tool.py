@@ -72,6 +72,7 @@ def get_hamiltonian_for_k(tbm: TBModel, k):
 
 
 def get_eigen_for_tbm(tbm: TBModel, k):
+    # print("k", k)
     H = get_hamiltonian_for_k(tbm, k)
     # H = H.T
     # print("H", H)

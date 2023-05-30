@@ -65,10 +65,10 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
     # OLP_r = OLP_r * 0.529177249
     nm = create_TBModel(Total_NumOrbs_sum, tv, isorthogonal=False)
     if SpinP_switch == 0:
-        for i in range(atomnum):
-            for j in range(FNAN[0]):
-                for ii in range(Total_NumOrbs[i]):
-                    for jj in range(Total_NumOrbs[natn[i][j] - 1]):
+        for i in range(atomnum):  # atom
+            for j in range(FNAN[0]):  # neighbor
+                for ii in range(Total_NumOrbs[i]):  # atom orbital
+                    for jj in range(Total_NumOrbs[natn[i][j] - 1]):  # neighbor orbital
                         # print("i,j,ii,jj", i, j, ii, jj)
                         # print("tuple(atv_ijk[:, ncn[i][j]])", tuple(atv_ijk[:, ncn[i][j]-1]))
                         # print("Hk[0][i][j][jj, ii]", Hk[0][i][j][jj, ii])
@@ -84,10 +84,14 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                                        n=numorb_base[i] + ii,
                                        m=numorb_base[natn[i][j] - 1] + jj,
                                        hopping=Hk[0][i][j][jj, ii])
+                                       # hopping=Hk[0][i][j].T[jj, ii])
+                                       # hopping=Hk[0][i][j][ii, jj])
                         nm.set_overlap(R=tuple(atv_ijk[:, ncn[i][j] - 1]),
                                        n=numorb_base[i] + ii,
                                        m=numorb_base[natn[i][j] - 1] + jj,
                                        overlap=OLP[i][j][jj, ii])
+                                       # overlap=OLP[i][j].T[jj, ii])
+                                       # overlap=OLP[i][j][ii, jj])
 
         for i in range(atomnum):
             for j in range(FNAN[0]):
@@ -99,9 +103,12 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                                             m=numorb_base[natn[i][j] - 1] + jj,
                                             alpha=alpha,
                                             pos=OLP_r[alpha - 1][i][j][jj, ii])
+                                            # pos=OLP_r[alpha - 1][i][j].T[jj, ii])
+                                            # pos=OLP_r[alpha - 1][i][j][ii, jj])
     return nm
 
 
 #
 if __name__ == '__main__':
-    create_TBModel_from_openmx39()
+    result_dict = read_openmx39("data/met.scfout")
+    create_TBModel_from_openmx39("data/met.scfout")

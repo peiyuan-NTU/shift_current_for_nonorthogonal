@@ -3,7 +3,7 @@ from src.Basic_tool import get_order, get_two_order, get_eigen_for_tbm
 from src.Basic_tool import DEGEN_THRESH
 import numpy as np
 from src.mesh import create_uniform_mesh
-
+import multiprocessing as mp
 # sigma_s = None
 
 results = np.zeros(3, dtype=np.float64)
@@ -65,7 +65,7 @@ def get_shift_cond_k_inplace(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1
     A_gamma = Berry_connection(tm=tm,
                                alpha=gamma,
                                k=k)
-    print("A_beta = ", A_beta, "\n A_gamma = ", A_gamma)
+    # print("A_beta = ", A_beta, "\n A_gamma = ", A_gamma)
     gdr_beta_alpha = get_generalized_dr(tm, beta, alpha, k)
     # print("gdr_beta_alpha = ", gdr_beta_alpha)
     gdr_gamma_alpha = get_generalized_dr(tm, gamma, alpha, k)
@@ -85,7 +85,7 @@ def get_shift_cond_k_inplace(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1
                     omega = omega_s[i_omega]
                     # print("i_omega = ", i_omega, "omega = ", omega, "tmp = ", tmp, "En = ", En, "Em = ", Em, "tmp....", tmp * np.exp(-(En - Em - omega) ** 2 / epsilon ** 2))
                     sigma_s[i_omega] += tmp * np.exp(-(En - Em - omega) ** 2 / epsilon ** 2)
-    print("\n")
+    # print("\n")
     return sigma_s
 
 
@@ -102,14 +102,9 @@ def get_shift_cond_k(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
 
 
 def get_shift_cond_inner(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon: float = 0.1, batchsize: int = 1):
-    def collect_result(result):
-        global results
-        results += result
-
     nks = np.prod(mesh_size)
     n_omega_s = len(omega_s)
     sigma_s = np.zeros(n_omega_s)
-    all_mesh = list(create_uniform_mesh(mesh_size))
     for k in create_uniform_mesh(mesh_size):
         sigma_s += get_shift_cond_k(tm=tm,
                                     alpha=alpha,
@@ -119,12 +114,31 @@ def get_shift_cond_inner(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon
                                     mu=mu,
                                     k=k,
                                     epsilon=epsilon)
-    # pool = mp.Pool(20)
 
-    # for k in all_mesh:
-    #     pool.apply_async(get_shift_cond_k, args=(tm, alpha, beta, gamma, omega_s, mu, k, epsilon),
-    #                      callback=collect_result)
+    brillouin_zone_volume = abs(np.linalg.det(tm.rlat))
+    # print("brillouin_zone_volume = ", brillouin_zone_volume)
+    # print("nks = ", nks)
+    print("sigma_s = ", sigma_s)
+    return sigma_s * brillouin_zone_volume / nks
 
+
+def get_shift_cond_inner_parallel(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon: float = 0.1, batchsize: int = 1):
+    def collect_result(result):
+        global results
+        results += result
+
+    nks = np.prod(mesh_size)
+    n_omega_s = len(omega_s)
+    sigma_s = np.zeros(n_omega_s)
+    all_mesh = list(create_uniform_mesh(mesh_size))
+
+    # # # # # # # # # #
+    pool = mp.Pool(20)
+
+    for k in all_mesh:
+        pool.apply_async(get_shift_cond_k, args=(tm, alpha, beta, gamma, omega_s, mu, k, epsilon),
+                         callback=collect_result)
+    sigma_s = sum(results)
     # sigmas = Parallel(n_jobs=-1)(
     #     delayed(get_shift_cond_k)(tm, alpha, beta, gamma, omegas, mu, k, epsilon=epsilon) for k in
     #     create_uniform_mesh(mesh_size=meshsize))
@@ -133,6 +147,9 @@ def get_shift_cond_inner(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon
     # print("nks = ", nks)
     print("sigma_s = ", sigma_s)
     return sigma_s * brillouin_zone_volume / nks
+
+
+
 
 
 def get_shift_cond(tm, alpha, beta, omega_s, mu, mesh_size, epsilon=0.1, batch_size=1):

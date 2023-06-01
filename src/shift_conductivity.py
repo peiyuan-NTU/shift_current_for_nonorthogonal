@@ -4,6 +4,7 @@ from src.Basic_tool import DEGEN_THRESH
 import numpy as np
 from src.mesh import create_uniform_mesh
 import multiprocessing as mp
+
 # sigma_s = None
 
 results = np.zeros(3, dtype=np.float64)
@@ -101,7 +102,7 @@ def get_shift_cond_k(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
     return sigma_s
 
 
-def get_shift_cond_inner(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon: float = 0.1, batchsize: int = 1):
+def get_shift_cond_abc(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon: float = 0.1, batchsize: int = 1):
     nks = np.prod(mesh_size)
     n_omega_s = len(omega_s)
     sigma_s = np.zeros(n_omega_s)
@@ -122,14 +123,14 @@ def get_shift_cond_inner(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon
     return sigma_s * brillouin_zone_volume / nks
 
 
-def get_shift_cond_inner_parallel(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon: float = 0.1, batchsize: int = 1):
+def get_shift_cond_abc_parallel(tm, alpha, beta, gamma, omega_s, mu, mesh_size, epsilon: float = 0.1,
+                                batchsize: int = 1):
     def collect_result(result):
         global results
         results += result
 
     nks = np.prod(mesh_size)
     n_omega_s = len(omega_s)
-    sigma_s = np.zeros(n_omega_s)
     all_mesh = list(create_uniform_mesh(mesh_size))
 
     # # # # # # # # # #
@@ -138,30 +139,27 @@ def get_shift_cond_inner_parallel(tm, alpha, beta, gamma, omega_s, mu, mesh_size
     for k in all_mesh:
         pool.apply_async(get_shift_cond_k, args=(tm, alpha, beta, gamma, omega_s, mu, k, epsilon),
                          callback=collect_result)
+    pool.close()
+    pool.join()
+    print("results = ", results, "shape = ", np.shape(results))
     sigma_s = sum(results)
-    # sigmas = Parallel(n_jobs=-1)(
-    #     delayed(get_shift_cond_k)(tm, alpha, beta, gamma, omegas, mu, k, epsilon=epsilon) for k in
-    #     create_uniform_mesh(mesh_size=meshsize))
+
     brillouin_zone_volume = abs(np.linalg.det(tm.rlat))
-    # print("brillouin_zone_volume = ", brillouin_zone_volume)
-    # print("nks = ", nks)
+
     print("sigma_s = ", sigma_s)
 
     return sigma_s * brillouin_zone_volume / nks
 
 
-
-
-
-def get_shift_cond(tm, alpha, beta, omega_s, mu, mesh_size, epsilon=0.1, batch_size=1):
+def get_shift_cond_abb(tm, alpha, beta, omega_s, mu, mesh_size, epsilon=0.1, batch_size=1):
     # print("meshsize", meshsize)
 
-    return get_shift_cond_inner(tm=tm,
-                                alpha=alpha,
-                                beta=beta,
-                                gamma=beta,
-                                omega_s=omega_s,
-                                mu=mu,
-                                mesh_size=mesh_size,
-                                epsilon=epsilon,
-                                batchsize=batch_size)
+    return get_shift_cond_abc(tm=tm,
+                              alpha=alpha,
+                              beta=beta,
+                              gamma=beta,
+                              omega_s=omega_s,
+                              mu=mu,
+                              mesh_size=mesh_size,
+                              epsilon=epsilon,
+                              batchsize=batch_size)

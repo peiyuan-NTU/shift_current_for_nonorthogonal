@@ -1,6 +1,8 @@
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.tight_binding_model import create_info_missing_tb_model
-import numpy as np
-from src.topology import get_wilson_spectrum
 from src.topology import *
 
 # def getHaldane():

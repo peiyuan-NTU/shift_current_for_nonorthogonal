@@ -7,7 +7,7 @@ import multiprocessing as mp
 
 # sigma_s = None
 
-results = np.zeros(3, dtype=np.float64)
+results = np.zeros(10, dtype=np.float64)
 
 
 def get_dr(tm, alpha, beta, k):
@@ -134,7 +134,7 @@ def get_shift_cond_abc_parallel(tm, alpha, beta, gamma, omega_s, mu, mesh_size, 
     all_mesh = list(create_uniform_mesh(mesh_size))
 
     # # # # # # # # # #
-    pool = mp.Pool(20)
+    pool = mp.Pool(48)
 
     for k in all_mesh:
         pool.apply_async(get_shift_cond_k, args=(tm, alpha, beta, gamma, omega_s, mu, k, epsilon),

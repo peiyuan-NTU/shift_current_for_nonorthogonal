@@ -141,9 +141,10 @@ def get_shift_cond_abc_parallel(tm, alpha, beta, gamma, omega_s, mu, mesh_size, 
                          callback=collect_result)
     pool.close()
     pool.join()
+    global results
     print("results = ", results, "shape = ", np.shape(results))
     # sigma_s = sum(results)
-
+    sigma_s = results
     brillouin_zone_volume = abs(np.linalg.det(tm.rlat))
 
     print("sigma_s = ", sigma_s)

@@ -13,7 +13,7 @@ tmp1 = get_shift_cond_abb(tm=tm,
                           beta=1,
                           omega_s=[0.5, 1.0, 1.5],
                           mu=0.0,
-                          mesh_size=[100, 100, 1],
+                          mesh_size=[100, 100, 100],
                           epsilon=np.sqrt(0.1))
 print(tmp1)
 

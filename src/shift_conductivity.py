@@ -7,7 +7,7 @@ import multiprocessing as mp
 
 # sigma_s = None
 
-results = np.zeros(10, dtype=np.float64)
+results = np.zeros(11, dtype=np.float64)
 
 
 def get_dr(tm, alpha, beta, k):

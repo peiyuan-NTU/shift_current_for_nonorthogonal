@@ -11,12 +11,15 @@ import matplotlib.pyplot as plt
 tm = create_TBModel_from_openmx39("data/met.scfout")
 omega_s = np.linspace(0, 1, 11)
 mesh_size = [100, 100, 100]
+fermi = -0.397881627178*27.211407952
+
+
 shift_conductivity_xyz = get_shift_cond_inner(tm=tm,
                                               alpha=1,
                                               beta=2,
                                               gamma=3,
                                               omega_s=omega_s,
-                                              mu=0.0,
+                                              mu=fermi,
                                               mesh_size=mesh_size,
                                               epsilon=np.sqrt(0.1))
 # shift_conductivity_yzx = get_shift_cond_inner(tm=tm,

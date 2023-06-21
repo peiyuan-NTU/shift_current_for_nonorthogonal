@@ -81,7 +81,7 @@ import numpy as np
 #     return tm
 
 
-nm = create_TBModel(n_orbital, lattice_vector, isorthogonal=True)
+nm = create_TBModel(n_orbital, lattice_vector, orthogonal=True)
 for ind in range(len(supercell_vector)):
     nm.set_hopping(R=tuple(supercell_vector[ind, :]),
                    n=orbital_index[ind, 0],

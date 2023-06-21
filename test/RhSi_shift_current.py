@@ -2,7 +2,7 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.shift_conductivity import get_shift_cond_inner
+from src.shift_conductivity import get_shift_cond_abc
 from interface.tbm_from_openmx import create_TBModel_from_openmx39
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,6 +22,7 @@ shift_conductivity_xyz = get_shift_cond_inner(tm=tm,
                                               mu=fermi,
                                               mesh_size=mesh_size,
                                               epsilon=np.sqrt(0.1))
+
 # shift_conductivity_yzx = get_shift_cond_inner(tm=tm,
 #                                               alpha=2,
 #                                               beta=3,

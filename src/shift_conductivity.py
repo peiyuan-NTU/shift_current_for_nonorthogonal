@@ -5,6 +5,7 @@ import numpy as np
 from src.mesh import create_uniform_mesh
 import multiprocessing as mp
 
+
 # sigma_s = None
 
 results = np.zeros(11, dtype=np.float64)

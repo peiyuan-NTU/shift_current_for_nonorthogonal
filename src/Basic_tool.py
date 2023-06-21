@@ -1,6 +1,7 @@
 import numpy as np
 from src.tight_binding_model import TBModel
 import scipy.linalg as la
+
 # import
 
 DEGEN_THRESH = [1.0e-4]
@@ -110,6 +111,27 @@ def construct_line_kpts(kpath, pnkpts, connect_end_points=False):
             kpts[:, ikpt + ipath * pnkpts] = kstart + ikpt * dk
 
     return kpts
+
+
+def construct_kpts_for_vasp(kpath, nkpts, connect_end_points=False):
+    assert kpath.shape[0] == 3, "kpath.shape[0] should be 3."
+    assert kpath.shape[1] % 2 == 0, "kpath.shape[1] should be even."
+
+    k_points = np.zeros((3, int(nkpts * kpath.shape[1]/2)))
+    for i in range(int(kpath.shape[1] / 2)):
+        k_points[0, nkpts * i:nkpts * (i + 1)] = np.linspace(start=kpath[0, 2 * i],
+                                                             stop=kpath[0, 2 * i + 1],
+                                                             num=nkpts,
+                                                             endpoint=False)
+        k_points[1, nkpts * i:nkpts * (i + 1)] = np.linspace(start=kpath[1, 2 * i],
+                                                             stop=kpath[1, 2 * i + 1],
+                                                             num=nkpts,
+                                                             endpoint=False)
+        k_points[2, nkpts * i:nkpts * (i + 1)] = np.linspace(start=kpath[2, 2 * i],
+                                                             stop=kpath[2, 2 * i + 1],
+                                                             num=nkpts,
+                                                             endpoint=False)
+    return k_points
 
 
 def get_order(alpha):

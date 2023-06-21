@@ -1,6 +1,7 @@
 from data.parse_openmx import read_openmx39
 from src.tight_binding_model import create_TBModel
 from copy import deepcopy
+from time import time
 
 
 def calcassistvars(Total_NumOrbs):
@@ -13,8 +14,10 @@ def calcassistvars(Total_NumOrbs):
 
 
 def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
-    # def construct_tight_binding_model_from_openmx:
+    read_start = time()
+    # print("Reading openmx39 file...")
     result_dict = read_openmx39(openmx39_file_name)
+    # print("Reading openmx39 file...Done!")
     atomnum = result_dict["atomnum"]
     SpinP_switch = result_dict["SpinP_switch"]
     atv = result_dict["atv"]
@@ -32,7 +35,7 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
     numorb_base = calcassistvars(Total_NumOrbs)
     # print("numorb_base", numorb_base)
     Total_NumOrbs_sum = sum(Total_NumOrbs)
-    print("Total_NumOrbs_sum", Total_NumOrbs_sum, "Total_NumOrbs", Total_NumOrbs)
+    # print("Total_NumOrbs_sum", Total_NumOrbs_sum, "Total_NumOrbs", Total_NumOrbs)
     atv = atv * 0.529177249
     tv = tv * 0.529177249
 
@@ -40,17 +43,14 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
     # def element_multiply(ll):
     #     return list(map(lambda _: _ * 27.211399, ll))
     tmp = deepcopy(Hk)
-    # for t in [Hk, iHk]:
-    #     if t is not None:
-    #         t = list(
-    #             map(lambda strip_1: list(map(lambda strip_2: list(map(lambda nd_array: nd_array * 27.21139, strip_2)), strip_1)),
-    #                 t))
-    #         # t *= 27.211399  # Hartree to eV
+
     if Hk is not None:
         Hk = list(
             map(lambda strip_1: list(
                 map(lambda strip_2: list(map(lambda nd_array: nd_array * 27.211399, strip_2)), strip_1)),
                 Hk))
+    print("Hk", type(Hk), len(Hk), len(Hk[0]), len(Hk[0][0]), len(Hk[0][0][0]))
+    # return Hk
     if iHk is not None:
         iHk = list(
             map(lambda strip_1: list(
@@ -61,9 +61,8 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
             map(lambda strip_1: list(
                 map(lambda strip_2: list(map(lambda nd_array: nd_array * 0.529177249, strip_2)), strip_1)),
                 OLP_r))
-
-    # OLP_r = OLP_r * 0.529177249
-    nm = create_TBModel(Total_NumOrbs_sum, tv, isorthogonal=False)
+    # return Hk
+    nm = create_TBModel(Total_NumOrbs_sum, tv, orthogonal=False)
     if SpinP_switch == 0:
         for i in range(atomnum):  # atom
             for j in range(FNAN[0]):  # neighbor
@@ -84,14 +83,15 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                                        n=numorb_base[i] + ii,
                                        m=numorb_base[natn[i][j] - 1] + jj,
                                        hopping=Hk[0][i][j][jj, ii])
-                                       # hopping=Hk[0][i][j].T[jj, ii])
-                                       # hopping=Hk[0][i][j][ii, jj])
+                        # print("Hk[0][i][j][jj, ii]", Hk[0][i][j][jj, ii])
+                        # hopping=Hk[0][i][j].T[jj, ii])
+                        # hopping=Hk[0][i][j][ii, jj])
                         nm.set_overlap(R=tuple(atv_ijk[:, ncn[i][j] - 1]),
                                        n=numorb_base[i] + ii,
                                        m=numorb_base[natn[i][j] - 1] + jj,
                                        overlap=OLP[i][j][jj, ii])
-                                       # overlap=OLP[i][j].T[jj, ii])
-                                       # overlap=OLP[i][j][ii, jj])
+                        # overlap=OLP[i][j].T[jj, ii])
+                        # overlap=OLP[i][j][ii, jj])
 
         for i in range(atomnum):
             for j in range(FNAN[0]):
@@ -103,12 +103,14 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                                             m=numorb_base[natn[i][j] - 1] + jj,
                                             alpha=alpha,
                                             pos=OLP_r[alpha - 1][i][j][jj, ii])
-                                            # pos=OLP_r[alpha - 1][i][j].T[jj, ii])
-                                            # pos=OLP_r[alpha - 1][i][j][ii, jj])
+                            # pos=OLP_r[alpha - 1][i][j].T[jj, ii])
+                            # pos=OLP_r[alpha - 1][i][j][ii, jj])
+    read_end = time()
+    print("reading time", read_end - read_start)
     return nm
 
 
 #
 if __name__ == '__main__':
-    result_dict = read_openmx39("data/met.scfout")
-    create_TBModel_from_openmx39("data/met.scfout")
+    # result_dict = read_openmx39("data/rhsi.scfout")
+    rhsi_model=create_TBModel_from_openmx39("data/rhsi.scfout")

@@ -15,9 +15,9 @@ def calcassistvars(Total_NumOrbs):
 
 def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
     read_start = time()
-    # print("Reading openmx39 file...")
+    print("Reading openmx39 file...")
     result_dict = read_openmx39(openmx39_file_name)
-    # print("Reading openmx39 file...Done!")
+    print("Reading openmx39 file...Done!")
     atomnum = result_dict["atomnum"]
     SpinP_switch = result_dict["SpinP_switch"]
     atv = result_dict["atv"]
@@ -49,7 +49,7 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
             map(lambda strip_1: list(
                 map(lambda strip_2: list(map(lambda nd_array: nd_array * 27.211399, strip_2)), strip_1)),
                 Hk))
-    print("Hk", type(Hk), len(Hk), len(Hk[0]), len(Hk[0][0]), len(Hk[0][0][0]))
+    # print("Hk", type(Hk), len(Hk), len(Hk[0]), len(Hk[0][0]), len(Hk[0][0][0]))
     # return Hk
     if iHk is not None:
         iHk = list(

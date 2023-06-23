@@ -122,15 +122,15 @@ def construct_kpts_for_vasp(kpath, nkpts, connect_end_points=False):
         k_points[0, nkpts * i:nkpts * (i + 1)] = np.linspace(start=kpath[0, 2 * i],
                                                              stop=kpath[0, 2 * i + 1],
                                                              num=nkpts,
-                                                             endpoint=False)
+                                                             endpoint=True)
         k_points[1, nkpts * i:nkpts * (i + 1)] = np.linspace(start=kpath[1, 2 * i],
                                                              stop=kpath[1, 2 * i + 1],
                                                              num=nkpts,
-                                                             endpoint=False)
+                                                             endpoint=True)
         k_points[2, nkpts * i:nkpts * (i + 1)] = np.linspace(start=kpath[2, 2 * i],
                                                              stop=kpath[2, 2 * i + 1],
                                                              num=nkpts,
-                                                             endpoint=False)
+                                                             endpoint=True)
     return k_points
 
 

@@ -49,14 +49,14 @@ def read_openmx39(file_name):
         ncn = [[i + 1 for i in x] for x in read_mixed_matrix(np.int32, f, FNAN)]
         # tv= read_3d_vecs(np.float64, f, 3)
         tv, rtv, Gxyz = [read_3d_vecs(np.float64, f, _) for _ in [3, 3, atomnum]]
-        print("tv", tv)
+        # print("tv", tv)
         Hk = read_matrix_in_mixed_matrix(np.float64, f, SpinP_switch + 1, atomnum, FNAN, natn, Total_NumOrbs)
 
         Hk = list(
             map(lambda strip_1: list(
                 map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
                 Hk))
-        print("Hk", type(Hk), len(Hk), len(Hk[0]), len(Hk[0][0]), len(Hk[0][0][0]))
+        # print("Hk", type(Hk), len(Hk), len(Hk[0]), len(Hk[0][0]), len(Hk[0][0][0]))
         # return Hk
         iHk = read_matrix_in_mixed_matrix(np.float64, f, 3, atomnum, FNAN, natn,
                                           Total_NumOrbs) if SpinP_switch == 3 else None
@@ -79,7 +79,7 @@ def read_openmx39(file_name):
             map(lambda strip_1: list(
                 map(lambda strip_2: list(map(lambda nd_array: nd_array.T, strip_2)), strip_1)),
                 OLP_r))
-        print("OLP_r", len(OLP_r), len(OLP_r[0]), len(OLP_r[0][0]), len(OLP_r[0][0][0]))
+        # print("OLP_r", len(OLP_r), len(OLP_r[0]), len(OLP_r[0][0]), len(OLP_r[0][0][0]))
         OLP_p = read_matrix_in_mixed_matrix(np.float64, f, 3, atomnum, FNAN, natn, Total_NumOrbs)
         # OLP_p = list(map(lambda strip_1: list(map(lambda nd_array: nd_array.T, strip_1)), OLP_p))
         DM = read_matrix_in_mixed_matrix(np.float64, f, SpinP_switch + 1, atomnum, FNAN, natn, Total_NumOrbs)

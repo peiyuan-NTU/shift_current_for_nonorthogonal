@@ -8,10 +8,10 @@ from interface.tbm_from_openmx import create_TBModel_from_openmx39
 import numpy as np
 import matplotlib.pyplot as plt
 
-tm = create_TBModel_from_openmx39("data/met.scfout")
+tm = create_TBModel_from_openmx39("data/rhsi.scfout")
 omega_s = np.linspace(0, 1, 11)
 mesh_size = [100, 100, 100]
-fermi = -0.134773478314*27.211407952
+fermi = --0.395995217210*27.211407952
 shift_conductivity_xyz = get_shift_cond_abc_parallel(tm=tm,
                                                      alpha=1,
                                                      beta=2,

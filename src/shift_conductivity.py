@@ -92,6 +92,7 @@ def get_shift_cond_k_inplace(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1
 
 
 def get_shift_cond_k(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
+    print("alpha = ", alpha, "beta = ", beta, "gamma = ", gamma, "k = ", k, "mu = ", mu)
     sigma_s = get_shift_cond_k_inplace(tm=tm,
                                        alpha=alpha,
                                        beta=beta,

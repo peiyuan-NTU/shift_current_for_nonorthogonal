@@ -50,7 +50,7 @@ gamma = 3
 epsilon = np.sqrt(0.1)
 
 pool = mp.Pool(48)
-for k in all_mesh:
+for k in mesh_for_node:
     pool.apply_async(get_shift_cond_k, args=(tm, alpha, beta, gamma, omega_s, fermi, k, epsilon),
                      callback=collect_result)
 pool.close()

@@ -73,7 +73,8 @@ slurm_script = """#!/bin/bash
 #SBATCH --mem=10G
 #SBATCH --partition=short
 
-conda activate /home/p.cui/.Anaconda/envs/mpi
+source /home/${USER}/.bashrc
+source activate mpi
 python job.py
 """
 
@@ -93,6 +94,7 @@ for i in range(n_jobs):
             f.write(slurm_script)
         cmd_output = subprocess.run(["sbatch", "job.slurm"], capture_output=True, text=True, cwd=dir_name)
         print(cmd_output.stdout)
+
 
 # read job id from file
 # with open("job_id.txt", "r") as f:

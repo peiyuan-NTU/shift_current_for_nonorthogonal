@@ -61,8 +61,7 @@ with open(str(job_id) + "results.txt", "w") as f:
     f.write(str(results))
 """
 
-slurm_script = """
-#!/bin/bash
+slurm_script = """#!/bin/bash
 
 #SBATCH --job-name=rhsi_shift_cond
 #SBATCH --output=rhsi.out

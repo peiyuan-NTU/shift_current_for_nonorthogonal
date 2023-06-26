@@ -67,12 +67,13 @@ slurm_script = """#!/bin/bash
 #SBATCH --output=rhsi.out
 #SBATCH --error=rhsi.err
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=48
+#SBATCH --exclusive
 #SBATCH --time=24:00:00
 #SBATCH --mem=10G
 #SBATCH --partition=short
 
-source activate /home/p.cui/.Anaconda/envs/mpi
+conda activate /home/p.cui/.Anaconda/envs/mpi
 python job.py
 """
 

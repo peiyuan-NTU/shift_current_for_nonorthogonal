@@ -63,6 +63,7 @@ with open(str(job_id) + "results.txt", "w") as f:
 
 slurm_script = """
 #!/bin/bash
+
 #SBATCH --job-name=rhsi_shift_cond
 #SBATCH --output=rhsi.out
 #SBATCH --error=rhsi.err
@@ -75,7 +76,6 @@ slurm_script = """
 source activate /home/p.cui/.Anaconda/envs/mpi
 python job.py
 """
-
 
 n_jobs = 100
 
@@ -91,9 +91,8 @@ for i in range(n_jobs):
             f.write(python_code)
         with open(dir_name + "/job.slurm", "w") as f:  # write slurm script
             f.write(slurm_script)
-        subprocess.run(["sbatch", "job.slurm"], cwd=dir_name)
-
-
+        cmd_output = subprocess.run(["sbatch", "job.slurm"], capture_output=True, text=True, cwd=dir_name)
+        print(cmd_output.stdout)
 
 # read job id from file
 # with open("job_id.txt", "r") as f:

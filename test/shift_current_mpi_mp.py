@@ -2,6 +2,7 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 # from src.shift_conductivity import get_shift_cond_inner
 from src.shift_conductivity import get_shift_cond_abc_parallel, get_shift_cond_k
 from interface.tbm_from_openmx import create_TBModel_from_openmx39

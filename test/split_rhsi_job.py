@@ -91,7 +91,7 @@ for i in range(n_jobs):
             f.write(python_code)
         with open(dir_name + "/job.slurm", "w") as f:  # write slurm script
             f.write(slurm_script)
-        cmd_output = subprocess.run(["sbatch", "job.slurm"], capture_output=True, text=True, cwd=dir_name)
+        cmd_output = subprocess.run(["sbatch", "job.slurm"], capture_output=True, stderr=subprocess.STDOUT, text=True, cwd=dir_name)
         print(cmd_output.stdout)
 
 # read job id from file

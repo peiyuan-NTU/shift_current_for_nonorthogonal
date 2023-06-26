@@ -16,7 +16,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()  # rank of current process
 size = comm.Get_size()  # number of processes
 
-tm = create_TBModel_from_openmx39("data/met.scfout")
+tm = create_TBModel_from_openmx39("data/rhsi.scfout")
 mesh_size = [150, 150, 150]
 nks = np.prod(mesh_size)
 brillouin_zone_volume = abs(np.linalg.det(tm.rlat))

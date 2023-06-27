@@ -55,6 +55,7 @@ epsilon = np.sqrt(0.1)
 n_cores = mp.cpu_count()
 pool = mp.Pool(n_cores)
 for k in mesh_for_node:
+    print("k = ", k)
     pool.apply_async(get_shift_cond_k,
                      args=(tm, alpha, beta, gamma, omega_s, fermi, k, epsilon),
                      callback=collect_result)

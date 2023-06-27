@@ -3,7 +3,7 @@
 #SBATCH --output=rhsi.out
 #SBATCH --error=rhsi.err
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=48
+#SBATCH --ntasks-per-node=56
 #SBATCH --exclusive
 #SBATCH --time=24:00:00
 #SBATCH --mem=100G

@@ -13,8 +13,8 @@ f = open("job.py", "r")
 python_code = f.read()
 f.close()
 
-n_jobs = 100
-wd= os.getcwd()
+n_jobs = 10
+wd = os.getcwd()
 prefix = os.path.join("rhsi")
 for i in range(n_jobs):
     dir_name = os.path.join(prefix, "job_" + str(i))
@@ -26,7 +26,8 @@ for i in range(n_jobs):
         with open(dir_name + "/job.py", "w") as f:  # write python code
             f.write(python_code)
         print(os.path.join(wd, dir_name))
-        cmd_output = subprocess.run(["sbatch", "job.py"], capture_output=True, text=True, cwd=os.path.join(wd, dir_name))
+        cmd_output = subprocess.run(["sbatch", "job.py"], capture_output=True, text=True,
+                                    cwd=os.path.join(wd, dir_name))
         print(cmd_output.stdout)
 
 # read job id from file

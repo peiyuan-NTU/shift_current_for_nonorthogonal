@@ -51,15 +51,52 @@ def get_generalized_dr(tm, alpha, beta, k):
     return get_dr(tm, alpha, beta, k)
 
 
-def get_shift_cond_k_inplace(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
+# def get_shift_cond_k_inplace(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
+#     print("alpha = ", alpha, "beta = ", beta, "gamma = ", gamma, "k = ", k, "mu = ", mu, "epsilon = ", epsilon,
+#           "omega_s = ", omega_s)
+#     sigma_s = np.zeros(len(omega_s))
+#     n_omega_s = len(omega_s)
+#     Es = get_eigen_for_tbm(tm, k)[0]
+#     Vs = get_eigen_for_tbm(tm, k)[1]
+#     # print("Es = ", Es)
+#     # print("Vs = ", Vs)
+#
+#     A_beta = Berry_connection(tm=tm,
+#                               alpha=beta,
+#                               k=k)
+#     A_gamma = Berry_connection(tm=tm,
+#                                alpha=gamma,
+#                                k=k)
+#     # print("A_beta = ", A_beta, "\n A_gamma = ", A_gamma)
+#     gdr_beta_alpha = get_generalized_dr(tm, beta, alpha, k)
+#     # print("gdr_beta_alpha = ", gdr_beta_alpha)
+#     gdr_gamma_alpha = get_generalized_dr(tm, gamma, alpha, k)
+#     # print("gdr_gamma_alpha = ", gdr_gamma_alpha)
+#     constant = -3.0828677458430857 * np.sqrt(1 / np.pi) / epsilon
+#
+#     for n in range(tm.norbits):
+#         for m in range(tm.norbits):
+#             En = Es[n]
+#             Em = Es[m]
+#             fn = 1 if En < mu else 0
+#             fm = 1 if Em < mu else 0
+#             if fn != fm:
+#                 tmp = constant * (fn - fm) * np.imag(
+#                     A_beta[m, n] * gdr_gamma_alpha[n, m] + A_gamma[m, n] * gdr_beta_alpha[n, m])
+#                 for i_omega in range(n_omega_s):
+#                     omega = omega_s[i_omega]
+#                     # print("i_omega = ", i_omega, "omega = ", omega, "tmp = ", tmp, "En = ", En, "Em = ", Em, "tmp....", tmp * np.exp(-(En - Em - omega) ** 2 / epsilon ** 2))
+#                     sigma_s[i_omega] += tmp * np.exp(-(En - Em - omega) ** 2 / epsilon ** 2)
+#     # print("\n")
+#     return sigma_s
+
+
+def get_shift_cond_k(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
     print("alpha = ", alpha, "beta = ", beta, "gamma = ", gamma, "k = ", k, "mu = ", mu, "epsilon = ", epsilon,
           "omega_s = ", omega_s)
     sigma_s = np.zeros(len(omega_s))
     n_omega_s = len(omega_s)
     Es = get_eigen_for_tbm(tm, k)[0]
-    Vs = get_eigen_for_tbm(tm, k)[1]
-    # print("Es = ", Es)
-    # print("Vs = ", Vs)
 
     A_beta = Berry_connection(tm=tm,
                               alpha=beta,
@@ -67,13 +104,11 @@ def get_shift_cond_k_inplace(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1
     A_gamma = Berry_connection(tm=tm,
                                alpha=gamma,
                                k=k)
-    # print("A_beta = ", A_beta, "\n A_gamma = ", A_gamma)
-    gdr_beta_alpha = get_generalized_dr(tm, beta, alpha, k)
-    # print("gdr_beta_alpha = ", gdr_beta_alpha)
-    gdr_gamma_alpha = get_generalized_dr(tm, gamma, alpha, k)
-    # print("gdr_gamma_alpha = ", gdr_gamma_alpha)
-    constant = -3.0828677458430857 * np.sqrt(1 / np.pi) / epsilon
 
+    gdr_beta_alpha = get_generalized_dr(tm, beta, alpha, k)
+    gdr_gamma_alpha = get_generalized_dr(tm, gamma, alpha, k)
+
+    constant = -3.0828677458430857 * np.sqrt(1 / np.pi) / epsilon
     for n in range(tm.norbits):
         for m in range(tm.norbits):
             En = Es[n]
@@ -85,22 +120,7 @@ def get_shift_cond_k_inplace(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1
                     A_beta[m, n] * gdr_gamma_alpha[n, m] + A_gamma[m, n] * gdr_beta_alpha[n, m])
                 for i_omega in range(n_omega_s):
                     omega = omega_s[i_omega]
-                    # print("i_omega = ", i_omega, "omega = ", omega, "tmp = ", tmp, "En = ", En, "Em = ", Em, "tmp....", tmp * np.exp(-(En - Em - omega) ** 2 / epsilon ** 2))
                     sigma_s[i_omega] += tmp * np.exp(-(En - Em - omega) ** 2 / epsilon ** 2)
-    # print("\n")
-    return sigma_s
-
-
-def get_shift_cond_k(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
-    # print("alpha = ", alpha, "beta = ", beta, "gamma = ", gamma, "k = ", k, "mu = ", mu)
-    sigma_s = get_shift_cond_k_inplace(tm=tm,
-                                       alpha=alpha,
-                                       beta=beta,
-                                       gamma=gamma,
-                                       omega_s=omega_s,
-                                       mu=mu,
-                                       k=k,
-                                       epsilon=epsilon)
     return sigma_s
 
 

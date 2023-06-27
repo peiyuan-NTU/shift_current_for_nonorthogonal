@@ -1,3 +1,16 @@
+#!/home/p.cui/.Anaconda/envs/mpi/bin/python
+#SBATCH --job-name=rhsi_shift_cond
+#SBATCH --output=rhsi.out
+#SBATCH --error=rhsi.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=48
+#SBATCH --exclusive
+#SBATCH --time=24:00:00
+#SBATCH --mem=100G
+#SBATCH --partition=short
+#SBATCH --output=rhsi_sc.log
+
+
 import os
 import sys
 

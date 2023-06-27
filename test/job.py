@@ -8,7 +8,6 @@
 #SBATCH --time=24:00:00
 #SBATCH --mem=100G
 #SBATCH --partition=short
-#SBATCH --output=rhsi_sc.log
 
 
 import os

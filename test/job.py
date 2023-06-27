@@ -14,8 +14,8 @@ import os
 import sys
 print(os.getcwd())
 print(os.path.abspath(__file__))
-print(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+print(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.getcwd())))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.getcwd())))))
 from src.shift_conductivity import get_shift_cond_k
 from interface.tbm_from_openmx import create_TBModel_from_openmx39
 import numpy as np

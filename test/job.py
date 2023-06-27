@@ -37,7 +37,8 @@ beta = 2
 gamma = 3
 epsilon = np.sqrt(0.1)
 
-n_cores = int(os.environ["SLURM_CPUS_PER_TASK"])
+# n_cores = int(os.environ["SLURM_CPUS_PER_TASK"])
+n_cores = mp.cpu_count()
 pool = mp.Pool(n_cores)
 for k in mesh_for_node:
     pool.apply_async(get_shift_cond_k,

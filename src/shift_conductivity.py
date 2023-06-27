@@ -4,6 +4,7 @@ from src.Basic_tool import DEGEN_THRESH
 import numpy as np
 from src.mesh import create_uniform_mesh
 import multiprocessing as mp
+import sys
 
 
 # sigma_s = None
@@ -94,6 +95,7 @@ def get_generalized_dr(tm, alpha, beta, k):
 def get_shift_cond_k(tm, alpha, beta, gamma, omega_s, mu, k, epsilon=0.1):
     print("alpha = ", alpha, "beta = ", beta, "gamma = ", gamma, "k = ", k, "mu = ", mu, "epsilon = ", epsilon,
           "omega_s = ", omega_s)
+    sys.stdout.flush()
     sigma_s = np.zeros(len(omega_s))
     n_omega_s = len(omega_s)
     Es = get_eigen_for_tbm(tm, k)[0]

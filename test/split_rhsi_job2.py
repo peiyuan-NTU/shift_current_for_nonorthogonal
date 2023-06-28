@@ -13,7 +13,7 @@ f = open("job.py", "r")
 python_code = f.read()
 f.close()
 
-n_jobs = 100
+n_jobs = 200
 wd = os.getcwd()
 prefix = os.path.join("rhsi")
 for i in range(n_jobs):

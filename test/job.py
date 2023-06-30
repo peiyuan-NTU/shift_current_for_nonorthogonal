@@ -1,7 +1,7 @@
 #!/home/p.cui/.Anaconda/envs/mpi/bin/python
 #SBATCH --job-name=rhsi_shift_cond
-#SBATCH --output=rhsi.out
-#SBATCH --error=rhsi.err
+#SBATCH --output=rhsi_%A_%a.out
+#SBATCH --error=rhsi_%A_%a.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=56
 #SBATCH --exclusive
@@ -44,7 +44,7 @@ mesh_for_node = np.array_split(all_mesh, n_jobs)[job_id]
 n_omega = 11
 omega_s = np.linspace(0, 1, n_omega)
 results = np.zeros(n_omega, dtype=np.float64)
-fermi = -0.395995217210 * 27.211407952
+fermi = tm.fermi * 27.211407952
 
 alpha = 1
 beta = 2

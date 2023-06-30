@@ -114,11 +114,14 @@ def read_openmx39(file_name):
         # print("next_line", next_line)
         # # # # # # # # # # # # # # # # # # # #  new search coordinates
         coordinates_type_pattern = "Atoms.SpeciesAndCoordinates.Unit\s+(\w+)"
+        fermi_energy_pattern = "\s+Chemical potential \(Hartree\)\s+([0-9+-.Ee]+)"
+
+
         while 1:
             coordinates_type = re.search(coordinates_type_pattern, next_line.decode("utf-8"))
             if coordinates_type is not None:
                 Coordinates_type = coordinates_type.group(1)
-                # print(Coordinates_type)
+                print(Coordinates_type)
                 break
             next_line = bytearray(f.readline())
 
@@ -130,11 +133,20 @@ def read_openmx39(file_name):
             if find is not None:
                 # print(find.groups())
                 all_coordinates.append(find.groups())
-                for i in range(atomnum-1):
+                for i in range(atomnum - 1):
                     next_line = bytearray(f.readline())
                     all_coordinates.append(re.search(coordinates_pattern, next_line.decode("utf-8")).groups())
                 break
             next_line = bytearray(f.readline())
+        while 1:
+            fermi_energy = re.search(fermi_energy_pattern, next_line.decode("utf-8"))
+            if fermi_energy is not None:
+                fermi = fermi_energy.group(1)
+                # print(Coordinates_type)
+                break
+            next_line = bytearray(f.readline())
+        print("fermi", fermi)
+
         # print("all_coordinates", all_coordinates)
         atom_positions = np.zeros((3, atomnum))
         for i in range(atomnum):
@@ -211,9 +223,9 @@ def read_openmx39(file_name):
                        "iHk": iHk,
                        "OLP": OLP,
                        "OLP_r": OLP_r,
-                       "atom_pos": atom_positions}
+                       "atom_pos": atom_positions,
+                       "fermi": fermi}
         return result_dict
-
 
 
 if __name__ == '__main__':

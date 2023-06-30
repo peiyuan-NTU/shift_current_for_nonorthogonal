@@ -35,7 +35,7 @@ with open("job_id.txt", "r") as f:  # read n_jobs and job_id from file
 print("job_id = ", job_id)
 
 tm = create_TBModel_from_openmx39("../../../data/rhsi.scfout")
-mesh_size = [150, 150, 150]
+mesh_size = [100, 100, 100]
 nks = np.prod(mesh_size)
 brillouin_zone_volume = abs(np.linalg.det(tm.rlat))
 all_mesh = list(create_uniform_mesh(mesh_size))

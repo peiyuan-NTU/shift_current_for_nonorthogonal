@@ -30,7 +30,7 @@ class TBModel:
             site_positions: Union[np.ndarray, None] = None,
             orbital_types: Union[List[List[int]], None] = None,
             isspinful: Union[bool, None] = None,
-            is_canonical_ordered: Union[bool, None] = None
+            is_canonical_ordered: Union[bool, None] = None,
             fermi_energy: Union[float, None] = None
     ):
         self.norbits = norbits

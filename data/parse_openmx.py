@@ -141,7 +141,7 @@ def read_openmx39(file_name):
         while 1:
             fermi_energy = re.search(fermi_energy_pattern, next_line.decode("utf-8"))
             if fermi_energy is not None:
-                fermi = fermi_energy.group(1)
+                fermi = float(fermi_energy.group(1))
                 # print(Coordinates_type)
                 break
             next_line = bytearray(f.readline())

@@ -64,6 +64,8 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                 OLP_r))
     # return Hk
     nm = create_TBModel(Total_NumOrbs_sum, tv, orthogonal=False)
+    print("fermi", fermi, "eV")
+    print("type(fermi)", type(fermi))
     nm.fermi_energy = fermi * 27.211407952
     if SpinP_switch == 0:
         for i in range(atomnum):  # atom

@@ -31,6 +31,7 @@ class TBModel:
             orbital_types: Union[List[List[int]], None] = None,
             isspinful: Union[bool, None] = None,
             is_canonical_ordered: Union[bool, None] = None
+            fermi_energy: Union[float, None] = None
     ):
         self.norbits = norbits
         self.lat = lat
@@ -47,6 +48,7 @@ class TBModel:
         self.is_canonical_ordered = is_canonical_ordered
         self.H_ftn58 = None
         self.S_ftn58 = None
+        self.fermi_energy = fermi_energy
 
     def has_full_information(self):
         for field in ["nsites", "site_norbits", "site_positions", "orbital_types",

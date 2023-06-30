@@ -44,7 +44,7 @@ mesh_for_node = np.array_split(all_mesh, n_jobs)[job_id]
 n_omega = 11
 omega_s = np.linspace(0, 1, n_omega)
 results = np.zeros(n_omega, dtype=np.float64)
-fermi = tm.fermi_energy * 27.211407952
+fermi = tm.fermi_energy
 
 alpha = 1
 beta = 2

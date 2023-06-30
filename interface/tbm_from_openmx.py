@@ -63,7 +63,8 @@ def create_TBModel_from_openmx39(openmx39_file_name="data/GaAs.openmx39"):
                 map(lambda strip_2: list(map(lambda nd_array: nd_array * 0.529177249, strip_2)), strip_1)),
                 OLP_r))
     # return Hk
-    nm = create_TBModel(Total_NumOrbs_sum, tv, orthogonal=False, fermi_energy=fermi)
+    nm = create_TBModel(Total_NumOrbs_sum, tv, orthogonal=False)
+    nm.fermi_energy = fermi * 27.211407952
     if SpinP_switch == 0:
         for i in range(atomnum):  # atom
             for j in range(FNAN[0]):  # neighbor
